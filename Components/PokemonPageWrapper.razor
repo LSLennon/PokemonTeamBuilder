@@ -1,0 +1,22 @@
+﻿@inject NavigationManager NavigationManager
+@inject PokemonAuthenticationService PokeService
+
+@if (PokeService.CurrentUser.Identity.IsAuthenticated)
+{
+    @ChildContent
+}
+else
+{
+    <MudText>You're not logged in </MudText>
+    <MudButton OnClick="NavigateToLogin">Login</MudButton>
+}
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    private async Task NavigateToLogin()
+    {
+        NavigationManager.NavigateTo("/LogInUser");
+    }
+}
