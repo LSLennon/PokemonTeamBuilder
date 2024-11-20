@@ -3,8 +3,14 @@
 @inject PokemonAuthenticationService PokeService
 
 <PokemonPageWrapper>
-    You logged in
+    hello @userName
 </PokemonPageWrapper>
 @code {
-    
+    public string userName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await PokeService.GetAuthenticationStateAsync();
+        userName = authState.User.Identity?.Name;
+    }
 }

@@ -6,19 +6,21 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
-
-
-
 namespace PokemonTeamBuilder.Data
 {
     public class UserService
     {
+
         private readonly ApplicationDbContext _context;
 
-        public UserService(ApplicationDbContext context)
+        private readonly PokemonAuthenticationService _authStateProvider;
+
+        public UserService(ApplicationDbContext context, PokemonAuthenticationService authStateProvider)
         {
             _context = context;
+            _authStateProvider = authStateProvider;
         }
+
         public async Task AddUserAsync(User FH)
         {
             _context.Users.Add(FH);
@@ -30,7 +32,7 @@ namespace PokemonTeamBuilder.Data
             return await _context.Users.ToListAsync();
         }
 
-        public async Task<User> GetUserByIdAsync(string id)
+        public async Task<User> GetUserByIdAsync(int id)
         {
             return await _context.Users.FirstOrDefaultAsync(ps => ps.UserId == id);
 
@@ -61,7 +63,7 @@ namespace PokemonTeamBuilder.Data
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteUserAsync(string id)
+        public async Task DeleteUserAsync(int id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user != null)
@@ -87,7 +89,7 @@ namespace PokemonTeamBuilder.Data
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> LoginUser(string username, string password)
+        public async Task<bool> AuthenticateUser(string username, string password)
         {
             var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == username);
             if (user == null)
@@ -96,7 +98,18 @@ namespace PokemonTeamBuilder.Data
             }
 
             string hashedInputPassword = UserService.HashPassword(password, user.Salt);
-            return hashedInputPassword == user.PasswordHash;
+            
+            if (hashedInputPassword == user.PasswordHash)
+            {
+                _authStateProvider.SetUser(username);
+                return true;
+            }
+            return false;
+        }
+
+        public void Logout()
+        {
+            _authStateProvider.ClearUser();
         }
 
         public static string GenerateSalt()

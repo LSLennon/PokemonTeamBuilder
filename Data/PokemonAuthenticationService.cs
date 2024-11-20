@@ -1,35 +1,42 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Components.Authorization;
+using System.Net.NetworkInformation;
 using System.Security.Claims;
 
 namespace PokemonTeamBuilder.Data
 {
-    public class PokemonAuthenticationService
+    public class PokemonAuthenticationService : AuthenticationStateProvider
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public PokemonAuthenticationService(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccessor = httpContextAccessor;
-        }
+        private ClaimsPrincipal _anonymous = new ClaimsPrincipal(new ClaimsIdentity());
+        private ClaimsPrincipal _currentUser = new ClaimsPrincipal();
 
-        public ClaimsPrincipal CurrentUser => _httpContextAccessor.HttpContext.User;
+        public event Action? AuthenticationStateChangedEvent;
 
-        public async Task SignInAsync(string username)
+        public void SetUser(string username)
         {
             var claims = new List<Claim>
         {
             new Claim(ClaimTypes.Name, username)
         };
 
-            var identity = new ClaimsIdentity(claims, "PokemonCookieAuthentication");
-            var principal = new ClaimsPrincipal(identity);
+            var identity = new ClaimsIdentity(claims, "Custom");
+            _currentUser = new ClaimsPrincipal(identity);
 
-            await _httpContextAccessor.HttpContext.SignInAsync("PokemonCookieAuthentication", principal);
+            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+            AuthenticationStateChangedEvent?.Invoke();
         }
 
-        public async Task SignOutAsync()
+        public void ClearUser()
         {
-            await _httpContextAccessor.HttpContext.SignOutAsync("PokemonCookieAuthentication");
+            _currentUser = _anonymous;
+            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+            AuthenticationStateChangedEvent?.Invoke();
+        }
+
+        public override Task<AuthenticationState> GetAuthenticationStateAsync()
+        {
+            return Task.FromResult(new AuthenticationState(_currentUser));
         }
     }
 }

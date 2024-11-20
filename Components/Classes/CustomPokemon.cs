@@ -4,7 +4,7 @@ namespace PokemonTeamBuilder.Components.Classes
 {
     public class CustomPokemon
     {
-        public string CustomPokemonId { get; set; }
+        public int CustomPokemonId { get; set; }
         public string CustomPokemonNickname { get; set; }
         public int CustomPokemonLevel { get; set; }
         public List<string> CustomPokemonMoves { get; set; }
@@ -12,14 +12,14 @@ namespace PokemonTeamBuilder.Components.Classes
         public string CustomPokemonHeldItem { get; set; }
         public string BasePokemonId { get; set; }
 
-        public string UserTeamId { get; set; }
+        public int UserTeamId { get; set; }
         public UserTeam UserTeam { get; set; }
 
 
         public Stats CustomPokemonEVs { get; set; }
         public Stats CustomPokemonIVs { get; set; }
 
-        public string CustomPokemonEVsId { get; set; }
-        public string CustomPokemonIVsId { get;set; }
+        public int CustomPokemonEVsId { get; set; }
+        public int CustomPokemonIVsId { get;set; }
     }
 }

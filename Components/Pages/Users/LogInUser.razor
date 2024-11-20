@@ -1,6 +1,5 @@
 ﻿@inject UserService serviceUsers
 @inject NavigationManager NavigationManager
-@inject PokemonAuthenticationService PokeService
 @page "/LogInUser"
 
 <MudForm @ref="form"
@@ -34,14 +33,10 @@
     private string LoginPassword;
     private async Task Login()
     {
-        bool success = await serviceUsers.LoginUser(LoginUsername, LoginPassword);
+        bool success = await serviceUsers.AuthenticateUser(LoginUsername, LoginPassword);
         if (success)
         {
-            await PokeService.SignInAsync(LoginUsername);
             NavigationManager.NavigateTo($"/UserProfile");
-        }
-        else
-        {
         }
     }
 }

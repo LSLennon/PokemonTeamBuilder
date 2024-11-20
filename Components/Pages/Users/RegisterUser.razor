@@ -2,7 +2,6 @@
 @using System.ComponentModel.DataAnnotations
 @inject UserService serviceUsers
 @inject NavigationManager NavigationManager
-@inject PokemonAuthenticationService PokeService
 @page "/RegisterUser"
 
 <MudForm @ref="form" 
@@ -85,10 +84,9 @@
     private async Task Register()
     {
         await serviceUsers.RegisterUser(RegisterUsername, RegisterPassword);
-        bool success = await serviceUsers.LoginUser(RegisterUsername, RegisterPassword);
+        bool success = await serviceUsers.AuthenticateUser(RegisterUsername, RegisterPassword);
         if (success)
         {
-            await PokeService.SignInAsync(RegisterUsername);
             NavigationManager.NavigateTo($"/UserProfile");
         }
     }

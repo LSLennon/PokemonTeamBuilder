@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using PokemonTeamBuilder.Components;
@@ -20,6 +21,11 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlite("Data Source=Data/PokemonDB.db"));
 
+builder.Services.AddScoped<PokemonAuthenticationService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<AuthenticationStateProvider, PokemonAuthenticationService>();
+builder.Services.AddAuthorizationCore();
+
 builder.Services.AddAuthentication("PokemonCookieAuthentication")
     .AddCookie("PokemonCookieAuthentication", options =>
     {
@@ -28,11 +34,12 @@ builder.Services.AddAuthentication("PokemonCookieAuthentication")
         options.AccessDeniedPath = "/Components/Pages/Users/Forbidden";
     });
 
-builder.Services.AddScoped< PokemonAuthenticationService>();
-
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -45,9 +52,6 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 
 app.UseAntiforgery();
