@@ -23,6 +23,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<PokemonAuthenticationService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<PokemonApiService>();
 builder.Services.AddScoped<AuthenticationStateProvider, PokemonAuthenticationService>();
 builder.Services.AddAuthorizationCore();
 
@@ -31,7 +32,6 @@ builder.Services.AddAuthentication("PokemonCookieAuthentication")
     {
         options.LoginPath = "/Components/Pages/Users/LogInUser";
         options.LogoutPath = "/Components/Pages/Users/LogOutUser";
-        options.AccessDeniedPath = "/Components/Pages/Users/Forbidden";
     });
 
 builder.Services.AddHttpContextAccessor();

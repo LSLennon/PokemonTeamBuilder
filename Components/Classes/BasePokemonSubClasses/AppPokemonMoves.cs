@@ -1,6 +1,6 @@
 ﻿namespace PokemonTeamBuilder.Components.Classes.BasePokemonSubClasses
 {
-    public class PomkemonMoves
+    public class AppPokemonMoves
     {
         public string MoveName { get; set; }
         public string MoveType { get; set; }

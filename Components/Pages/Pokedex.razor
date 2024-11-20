@@ -1,0 +1,84 @@
+﻿@inject PokemonApiService PokeService
+
+@page "/Pokedex"
+
+<MudTable Items="@ListOfPokemon" Filter="new Func<BasePokemon,bool>(FilterFunc1)">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Periodic Elements</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudSpacer />
+        <MudToggleIconButton @bind-Toggled="TypeOrName"
+                             Size="Size.Large"
+                             Icon="@Icons.Material.Filled.ToggleOff"
+                             Color="@Color.Error"
+                             ToggledIcon="@Icons.Material.Filled.ToggleOn"
+                             ToggledColor="@Color.Success"
+                             title="@(TypeOrName ? "Type" : "Name")" />
+
+        <span>Searching for @(TypeOrName ? "Type" : "Name")</span>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>National Dex No</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Types</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="National Dex No">@context.BasePokemonId</MudTd>
+        <MudTd DataLabel="Name">@context.PokemonName</MudTd>
+        <MudTd DataLabel="Types">
+            <MudButton Variant="Variant.Filled" Class="@DisplayTypes(context.Types, 0)">@DisplayTypes(context.Types, 0)</MudButton>
+            <MudButton Variant="Variant.Filled" Class="@DisplayTypes(context.Types, 1)">@DisplayTypes(context.Types, 1)</MudButton>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+
+@code {
+    List<BasePokemon> ListOfPokemon = new List<BasePokemon>();
+    public bool TypeOrName { get; set; }
+    private string searchString1 = "";
+    private bool isInitialized = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListOfPokemon.Add(await PokeService.GetPokemon("Chikorita"));
+        ListOfPokemon.Add(await PokeService.GetPokemon("zubat"));
+    }
+
+    private string DisplayTypes(List<AppPokemonType> pokemonTypes, int ZeroOrOne)
+    {
+        if(pokemonTypes.Count - ZeroOrOne != 0) //Only returns null if a pokemon has 1 type because the count is 1 and its past 1
+        {
+            return pokemonTypes[ZeroOrOne].TypeName;
+        }
+        return "null";
+    }
+
+
+    private bool FilterFunc1(BasePokemon pokemon) => FilterFunc(pokemon, searchString1);
+
+    private bool FilterFunc(BasePokemon pokemon, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (!TypeOrName)
+        {
+            if (pokemon.PokemonName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }
+        else
+        {
+            foreach (var monster in pokemon.Types)
+            {
+                if (monster.TypeName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
+        }
+    }
+}

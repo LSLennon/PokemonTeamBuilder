@@ -16,8 +16,8 @@ namespace PokemonTeamBuilder.Components.Classes
         public UserTeam UserTeam { get; set; }
 
 
-        public Stats CustomPokemonEVs { get; set; }
-        public Stats CustomPokemonIVs { get; set; }
+        public AppStats CustomPokemonEVs { get; set; }
+        public AppStats CustomPokemonIVs { get; set; }
 
         public int CustomPokemonEVsId { get; set; }
         public int CustomPokemonIVsId { get;set; }

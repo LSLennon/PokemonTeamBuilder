@@ -13,7 +13,7 @@ namespace PokemonTeamBuilder.Data
         public DbSet<CustomPokemon> CustomPokemons { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserTeam> UserTeams { get; set; }
-        public DbSet<Stats> stats { get; set; }
+        public DbSet<AppStats> stats { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

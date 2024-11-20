@@ -14,5 +14,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
     <PackageReference Include="MudBlazor" Version="7.*" />
+    <PackageReference Include="PokeApiNet" Version="4.0.0" />
   </ItemGroup>
 </Project>

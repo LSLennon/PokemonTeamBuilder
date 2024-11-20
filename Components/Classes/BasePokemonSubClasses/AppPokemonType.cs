@@ -1,6 +1,6 @@
 ﻿namespace PokemonTeamBuilder.Components.Classes.BasePokemonSubClasses
 {
-    public class PokemonType
+    public class AppPokemonType
     {
         public string TypeName { get; set; }
         public List<string> NoDamageTaken { get; set; }

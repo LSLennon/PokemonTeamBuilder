@@ -1,6 +1,6 @@
 ﻿namespace PokemonTeamBuilder.Components.Classes.BasePokemonSubClasses
 {
-    public class Stats
+    public class AppStats
     {
         public int StatsId { get; set; }
         public int HP { get; set; }
