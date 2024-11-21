@@ -4,7 +4,7 @@
 
 <MudTable Items="@ListOfPokemon" Filter="new Func<BasePokemon,bool>(FilterFunc1)">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Periodic Elements</MudText>
+        <MudText Typo="Typo.h6">Pokedex</MudText>
         <MudSpacer />
         <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         <MudSpacer />
@@ -27,15 +27,14 @@
         <MudTd DataLabel="National Dex No">@context.BasePokemonId</MudTd>
         <MudTd DataLabel="Name">@context.PokemonName</MudTd>
         <MudTd DataLabel="Types">
-            <MudButton Variant="Variant.Filled" Class="@DisplayTypes(context.Types, 0)">@DisplayTypes(context.Types, 0)</MudButton>
-            <MudButton Variant="Variant.Filled" Class="@DisplayTypes(context.Types, 1)">@DisplayTypes(context.Types, 1)</MudButton>
+            <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@DisplayTypes(context.Types, 0)">@DisplayTypes(context.Types, 0)</MudButton>
+            <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@DisplayTypes(context.Types, 1)">@DisplayTypes(context.Types, 1)</MudButton>
         </MudTd>
     </RowTemplate>
     <PagerContent>
         <MudTablePager />
     </PagerContent>
 </MudTable>
-
 
 @code {
     List<BasePokemon> ListOfPokemon = new List<BasePokemon>();
@@ -45,8 +44,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ListOfPokemon.Add(await PokeService.GetPokemon("Chikorita"));
-        ListOfPokemon.Add(await PokeService.GetPokemon("zubat"));
     }
 
     private string DisplayTypes(List<AppPokemonType> pokemonTypes, int ZeroOrOne)

@@ -2,10 +2,10 @@
 {
     public class AppPokemonType
     {
+        public int AppPokemonTypeId { get; set; }
         public string TypeName { get; set; }
-        public List<string> NoDamageTaken { get; set; }
-        public List<string> HalfDamageTaken { get; set; }
-        public List<string> DoubleDamageTaken { get; set; }
+        public ICollection<TypeEffectiveness> Strengths { get; set; } = new List<TypeEffectiveness>();
+        public ICollection<TypeEffectiveness> Weaknesses { get; set; } = new List<TypeEffectiveness>();
 
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PokemonTeamBuilder.Components.Classes;
 using PokemonTeamBuilder.Components.Classes.BasePokemonSubClasses;
+using PokemonTeamBuilder.Components.Classes.PokedexDatabase;
 
 namespace PokemonTeamBuilder.Data
 {
@@ -14,6 +15,8 @@ namespace PokemonTeamBuilder.Data
         public DbSet<User> Users { get; set; }
         public DbSet<UserTeam> UserTeams { get; set; }
         public DbSet<AppStats> stats { get; set; }
+        public DbSet<PokedexPokemon> pokedexPokemon { get; set; }
+        public DbSet<AppPokemonType> appPokemonTypes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -41,6 +44,19 @@ namespace PokemonTeamBuilder.Data
                 .HasOne(cp => cp.CustomPokemonIVs)
                 .WithOne()
                 .HasForeignKey<CustomPokemon>(cp => cp.CustomPokemonIVsId);
+
+            modelBuilder.Entity<PokedexPokemon>()
+                .HasOne(bpa => bpa.PokemonType1)
+                .WithOne()
+                .HasForeignKey<PokedexPokemon>(bpa => bpa.PokemonType1Id);
+
+            modelBuilder.Entity<PokedexPokemon>()
+                .HasOne(bpa => bpa.PokemonType2)
+                .WithOne()
+                .HasForeignKey<PokedexPokemon>(bpa => bpa.PokemonType2Id);
+
+            modelBuilder.Entity<AppPokemonType>()
+                .HasKey(nc => nc.AppPokemonTypeId);
         }
     }
 }

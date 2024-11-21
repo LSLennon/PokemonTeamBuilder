@@ -8,6 +8,18 @@ namespace PokemonTeamBuilder.Data
     public class PokemonApiService
     {
         PokeApiClient pokeClient = new PokeApiClient();
+
+        public async Task<List<AppPokemonType>> AddTypeNames()
+        {
+            List<AppPokemonType> pokemonTypes = new List<AppPokemonType>();
+            await foreach (var typeRef in pokeClient.GetAllNamedResourcesAsync<Type>())
+            {
+                AppPokemonType typeToAdd = new AppPokemonType();
+                typeToAdd.TypeName = typeRef.Name;
+                pokemonTypes.Add(typeToAdd);
+            }
+            return pokemonTypes;
+        }
         public async Task<BasePokemon> GetPokemon(string IndividualName)
         {
             var apiRetrun = await pokeClient.GetResourceAsync<Pokemon>(IndividualName);

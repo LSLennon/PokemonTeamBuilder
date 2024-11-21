@@ -1,10 +1,16 @@
-﻿@page "/"
+﻿@inject PokemonServices PokemonService
+@inject PokemonApiService PokeService
+@page "/"
 
 
-<Pokedex />
 
 
 
+@code{
+    protected override async Task OnInitializedAsync(){
+       await PokemonService.AddTypeAsync(await PokeService.AddTypeNames());
+    }
+}
 
 <!--
 

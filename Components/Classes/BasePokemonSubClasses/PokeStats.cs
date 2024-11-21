@@ -2,7 +2,7 @@
 {
     public class AppStats
     {
-        public int StatsId { get; set; }
+        public int AppStatsId { get; set; }
         public int HP { get; set; }
         public int Attack { get; set; }
         public int Defence { get; set; }
