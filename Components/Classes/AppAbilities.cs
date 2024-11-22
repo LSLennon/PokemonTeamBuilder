@@ -1,6 +1,6 @@
-﻿namespace PokemonTeamBuilder.Components.Classes.BasePokemonSubClasses
+﻿namespace PokemonTeamBuilder.Components.Classes
 {
-    public class AppPokemonAbilities
+    public class AppAbilities
     {
         public string AbilityName { get; set; }
         public string AbilityDescription { get; set; }

@@ -1,4 +1,4 @@
-﻿namespace PokemonTeamBuilder.Components.Classes.BasePokemonSubClasses
+﻿namespace PokemonTeamBuilder.Components.Classes.DatabaseClasses
 {
     public class AppStats
     {

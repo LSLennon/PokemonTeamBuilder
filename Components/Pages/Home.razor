@@ -3,13 +3,11 @@
 @page "/"
 
 
-
+<DatabaseBuilder />
 
 
 @code{
-    protected override async Task OnInitializedAsync(){
-       await PokemonService.AddTypeAsync(await PokeService.AddTypeNames());
-    }
+    
 }
 
 <!--

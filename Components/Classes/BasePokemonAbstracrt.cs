@@ -1,4 +1,4 @@
-﻿using PokemonTeamBuilder.Components.Classes.BasePokemonSubClasses;
+﻿using PokemonTeamBuilder.Components.Classes.DatabaseClasses;
 
 namespace PokemonTeamBuilder.Components.Classes
 {
@@ -6,13 +6,14 @@ namespace PokemonTeamBuilder.Components.Classes
     {
         public string BasePokemonId { get; set; } //NationalDexNumber
         public string PokemonName { get; set; }
-        public List<AppPokemonType> Types { get; set; } = new List<AppPokemonType>();
-        public double Weight { get; set; }
+        public string PokedexEntry {  get; set; }
         public double Height { get; set; }
-        public List<AppPokemonAbilities> Abilities { get; set; } = new List<AppPokemonAbilities>();
-        public List<AppStats> Stats { get; set; } = new List<AppStats>();
-        public AppEvolutionInfromation EvoInfo { get; set; } = new AppEvolutionInfromation();
-        public List<AppPokemonMoves> Moves { get; set; } = new List<AppPokemonMoves>();
+        public double Weight { get; set; }
+        public List<DefenceType> Types { get; set; } = new List<DefenceType>();
+        public List<AppAbilities> Abilities { get; set; } = new List<AppAbilities>();
         public List<string> Sprites { get; set; } = new List<string>();
+        public List<AppStats> Stats { get; set; } = new List<AppStats>();
+        public List<AppMove> Moves { get; set; } = new List<AppMove>();
+       
     }
 }

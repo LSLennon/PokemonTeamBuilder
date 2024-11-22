@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace PokemonTeamBuilder.Components.Classes
+﻿namespace PokemonTeamBuilder.Components.Classes.DatabaseClasses
 {
     public class User
     {

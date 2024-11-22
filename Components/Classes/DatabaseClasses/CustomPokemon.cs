@@ -1,6 +1,4 @@
-﻿using PokemonTeamBuilder.Components.Classes.BasePokemonSubClasses;
-
-namespace PokemonTeamBuilder.Components.Classes
+﻿namespace PokemonTeamBuilder.Components.Classes.DatabaseClasses
 {
     public class CustomPokemon
     {
@@ -20,6 +18,6 @@ namespace PokemonTeamBuilder.Components.Classes
         public AppStats CustomPokemonIVs { get; set; }
 
         public int CustomPokemonEVsId { get; set; }
-        public int CustomPokemonIVsId { get;set; }
+        public int CustomPokemonIVsId { get; set; }
     }
 }

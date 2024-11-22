@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PokemonTeamBuilder.Components.Classes;
-using PokemonTeamBuilder.Components.Classes.BasePokemonSubClasses;
-using PokemonTeamBuilder.Components.Classes.PokedexDatabase;
+using PokemonTeamBuilder.Components.Classes.DatabaseClasses;
 
 namespace PokemonTeamBuilder.Data
 {
@@ -11,12 +9,14 @@ namespace PokemonTeamBuilder.Data
             : base(options)
         { }
 
+        public DbSet<AppStats> stats { get; set; }
+        public DbSet<AttackType> AttackTypes { get; set; }
         public DbSet<CustomPokemon> CustomPokemons { get; set; }
+        public DbSet<DefenceType> DefenceTypes { get; set; }
+        public DbSet<PokedexPokemon> PokedexPokemons { get; set; }
+        public DbSet<TypeEffectiveness> EffectivenessTypes { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserTeam> UserTeams { get; set; }
-        public DbSet<AppStats> stats { get; set; }
-        public DbSet<PokedexPokemon> pokedexPokemon { get; set; }
-        public DbSet<AppPokemonType> appPokemonTypes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -25,38 +25,20 @@ namespace PokemonTeamBuilder.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>()
-            .HasMany(u => u.UserTeams)
-            .WithOne(ut => ut.User)
-            .HasForeignKey(ut => ut.UserId);
 
-            modelBuilder.Entity<UserTeam>()
-            .HasMany(ut => ut.CustomPokemons)
-            .WithOne(cp => cp.UserTeam)
-            .HasForeignKey(cp => cp.UserTeamId);
+            modelBuilder.Entity<TypeEffectiveness>()
+           .HasKey(te => te.TypeEffectivnessId);
 
-            modelBuilder.Entity<CustomPokemon>()
-            .HasOne(cp => cp.CustomPokemonEVs)
-            .WithOne()
-            .HasForeignKey<CustomPokemon>(cp => cp.CustomPokemonEVsId);
+            modelBuilder.Entity<TypeEffectiveness>()
+                .HasOne(te => te.AttackType)
+                .WithMany(at => at.Effectiveness)
+                .HasForeignKey(te => te.AttackTypeId);
 
-            modelBuilder.Entity<CustomPokemon>()
-                .HasOne(cp => cp.CustomPokemonIVs)
-                .WithOne()
-                .HasForeignKey<CustomPokemon>(cp => cp.CustomPokemonIVsId);
-
-            modelBuilder.Entity<PokedexPokemon>()
-                .HasOne(bpa => bpa.PokemonType1)
-                .WithOne()
-                .HasForeignKey<PokedexPokemon>(bpa => bpa.PokemonType1Id);
-
-            modelBuilder.Entity<PokedexPokemon>()
-                .HasOne(bpa => bpa.PokemonType2)
-                .WithOne()
-                .HasForeignKey<PokedexPokemon>(bpa => bpa.PokemonType2Id);
-
-            modelBuilder.Entity<AppPokemonType>()
-                .HasKey(nc => nc.AppPokemonTypeId);
+            modelBuilder.Entity<TypeEffectiveness>()
+                .HasOne(te => te.DefenceType)
+                .WithMany(dt => dt.Effectiveness)
+                .HasForeignKey(te => te.DefenceTypeId);
         }
+
     }
 }

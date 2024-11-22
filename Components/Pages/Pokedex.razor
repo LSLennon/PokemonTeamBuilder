@@ -1,7 +1,7 @@
 ﻿@inject PokemonApiService PokeService
 
 @page "/Pokedex"
-
+<!--
 <MudTable Items="@ListOfPokemon" Filter="new Func<BasePokemon,bool>(FilterFunc1)">
     <ToolBarContent>
         <MudText Typo="Typo.h6">Pokedex</MudText>
@@ -35,47 +35,54 @@
         <MudTablePager />
     </PagerContent>
 </MudTable>
+-->
+
 
 @code {
-    List<BasePokemon> ListOfPokemon = new List<BasePokemon>();
+    /*
+     List<BasePokemon> ListOfPokemon = new List<BasePokemon>();
     public bool TypeOrName { get; set; }
     private string searchString1 = "";
     private bool isInitialized = false;
 
     protected override async Task OnInitializedAsync()
-    {
-    }
+     {
+     }
 
-    private string DisplayTypes(List<AppPokemonType> pokemonTypes, int ZeroOrOne)
-    {
-        if(pokemonTypes.Count - ZeroOrOne != 0) //Only returns null if a pokemon has 1 type because the count is 1 and its past 1
+     private string DisplayTypes(List<AppPokemonType> pokemonTypes, int ZeroOrOne)
         {
+        if(pokemonTypes.Count - ZeroOrOne != 0) //Only returns null if a pokemon has 1 type because the count is 1 and its past 1
+            {
             return pokemonTypes[ZeroOrOne].TypeName;
         }
-        return "null";
+    return "null";
     }
+
+
 
 
     private bool FilterFunc1(BasePokemon pokemon) => FilterFunc(pokemon, searchString1);
 
     private bool FilterFunc(BasePokemon pokemon, string searchString)
-    {
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-        if (!TypeOrName)
         {
+        if (string.IsNullOrWhiteSpace(searchString))
+        return true;
+        if (!TypeOrName)
+            {
             if (pokemon.PokemonName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            return false;
+            return true;
+        return false;
         }
         else
-        {
-            foreach (var monster in pokemon.Types)
             {
+            foreach (var monster in pokemon.Types)
+                {
                 if (monster.TypeName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                    return true;
+            return true;
             }
-            return false;
+        return false;
+     }
         }
-    }
+    */
+    
 }

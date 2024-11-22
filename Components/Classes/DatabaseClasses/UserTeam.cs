@@ -1,4 +1,4 @@
-﻿namespace PokemonTeamBuilder.Components.Classes
+﻿namespace PokemonTeamBuilder.Components.Classes.DatabaseClasses
 {
     public class UserTeam
     {
@@ -6,7 +6,7 @@
         public string UserTeamName { get; set; }
         public ICollection<CustomPokemon> CustomPokemons { get; set; } = new List<CustomPokemon>();
 
-        public int UserId { get; set; } 
+        public int UserId { get; set; }
         public User User { get; set; }
     }
 }
