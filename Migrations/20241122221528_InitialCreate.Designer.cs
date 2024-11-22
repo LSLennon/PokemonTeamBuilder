@@ -11,7 +11,7 @@ using PokemonTeamBuilder.Data;
 namespace PokemonTeamBuilder.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241122133226_InitialCreate")]
+    [Migration("20241122221528_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -98,6 +98,69 @@ namespace PokemonTeamBuilder.Migrations
                     b.ToTable("CustomPokemons");
                 });
 
+            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeType", b =>
+                {
+                    b.Property<int>("PokeTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PokeTypeName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("PokeTypeId");
+
+                    b.ToTable("PokeTypes");
+                });
+
+            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokedexPokemon", b =>
+                {
+                    b.Property<string>("PokedexPokemonId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DefenceType1PokeTypeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("DefenceType2PokeTypeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PokemonName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("PokedexPokemonId");
+
+                    b.HasIndex("DefenceType1PokeTypeId");
+
+                    b.HasIndex("DefenceType2PokeTypeId");
+
+                    b.ToTable("PokedexPokemons");
+                });
+
+            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.TypeEffectiveness", b =>
+                {
+                    b.Property<int>("TypeEffectivnessId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AttackTypeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double>("DamageCalculation")
+                        .HasColumnType("REAL");
+
+                    b.Property<int>("DefenceTypeId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("TypeEffectivnessId");
+
+                    b.HasIndex("AttackTypeId");
+
+                    b.HasIndex("DefenceTypeId");
+
+                    b.ToTable("EffectivenessTypes");
+                });
+
             modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.User", b =>
                 {
                     b.Property<int>("UserId")
@@ -141,84 +204,6 @@ namespace PokemonTeamBuilder.Migrations
                     b.ToTable("UserTeams");
                 });
 
-            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.PokedexDatabase.AttackType", b =>
-                {
-                    b.Property<int>("AttackTypeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("AttackTypeName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("AttackTypeId");
-
-                    b.ToTable("AttackTypes");
-                });
-
-            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.PokedexDatabase.DefenceType", b =>
-                {
-                    b.Property<int>("DefenceTypeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("DefenceTypeName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("DefenceTypeId");
-
-                    b.ToTable("DefenceTypes");
-                });
-
-            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.PokedexDatabase.PokedexPokemon", b =>
-                {
-                    b.Property<string>("PokedexPokemonId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("DefenceType1DefenceTypeId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("DefenceType2DefenceTypeId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("PokemonName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("PokedexPokemonId");
-
-                    b.HasIndex("DefenceType1DefenceTypeId");
-
-                    b.HasIndex("DefenceType2DefenceTypeId");
-
-                    b.ToTable("PokedexPokemons");
-                });
-
-            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.PokedexDatabase.TypeEffectiveness", b =>
-                {
-                    b.Property<int>("TypeEffectivnessId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("AttackTypeId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<double>("DamageCalculation")
-                        .HasColumnType("REAL");
-
-                    b.Property<int>("DefenceTypeId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("TypeEffectivnessId");
-
-                    b.HasIndex("AttackTypeId");
-
-                    b.HasIndex("DefenceTypeId");
-
-                    b.ToTable("EffectivenessTypes");
-                });
-
             modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.CustomPokemon", b =>
                 {
                     b.HasOne("PokemonTeamBuilder.Components.Classes.DatabaseClasses.AppStats", "CustomPokemonEVs")
@@ -246,6 +231,42 @@ namespace PokemonTeamBuilder.Migrations
                     b.Navigation("UserTeam");
                 });
 
+            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokedexPokemon", b =>
+                {
+                    b.HasOne("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeType", "DefenceType1")
+                        .WithMany()
+                        .HasForeignKey("DefenceType1PokeTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeType", "DefenceType2")
+                        .WithMany()
+                        .HasForeignKey("DefenceType2PokeTypeId");
+
+                    b.Navigation("DefenceType1");
+
+                    b.Navigation("DefenceType2");
+                });
+
+            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.TypeEffectiveness", b =>
+                {
+                    b.HasOne("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeType", "AttackType")
+                        .WithMany("AttackEffectiveness")
+                        .HasForeignKey("AttackTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeType", "DefenceType")
+                        .WithMany("DefenceEffectiveness")
+                        .HasForeignKey("DefenceTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AttackType");
+
+                    b.Navigation("DefenceType");
+                });
+
             modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.UserTeam", b =>
                 {
                     b.HasOne("PokemonTeamBuilder.Components.Classes.DatabaseClasses.User", "User")
@@ -257,40 +278,11 @@ namespace PokemonTeamBuilder.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.PokedexDatabase.PokedexPokemon", b =>
+            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeType", b =>
                 {
-                    b.HasOne("PokemonTeamBuilder.Components.Classes.PokedexDatabase.DefenceType", "DefenceType1")
-                        .WithMany()
-                        .HasForeignKey("DefenceType1DefenceTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("AttackEffectiveness");
 
-                    b.HasOne("PokemonTeamBuilder.Components.Classes.PokedexDatabase.DefenceType", "DefenceType2")
-                        .WithMany()
-                        .HasForeignKey("DefenceType2DefenceTypeId");
-
-                    b.Navigation("DefenceType1");
-
-                    b.Navigation("DefenceType2");
-                });
-
-            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.PokedexDatabase.TypeEffectiveness", b =>
-                {
-                    b.HasOne("PokemonTeamBuilder.Components.Classes.PokedexDatabase.AttackType", "AttackType")
-                        .WithMany("Effectiveness")
-                        .HasForeignKey("AttackTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PokemonTeamBuilder.Components.Classes.PokedexDatabase.DefenceType", "DefenceType")
-                        .WithMany("Effectiveness")
-                        .HasForeignKey("DefenceTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AttackType");
-
-                    b.Navigation("DefenceType");
+                    b.Navigation("DefenceEffectiveness");
                 });
 
             modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.User", b =>
@@ -301,16 +293,6 @@ namespace PokemonTeamBuilder.Migrations
             modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.UserTeam", b =>
                 {
                     b.Navigation("CustomPokemons");
-                });
-
-            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.PokedexDatabase.AttackType", b =>
-                {
-                    b.Navigation("Effectiveness");
-                });
-
-            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.PokedexDatabase.DefenceType", b =>
-                {
-                    b.Navigation("Effectiveness");
                 });
 #pragma warning restore 612, 618
         }

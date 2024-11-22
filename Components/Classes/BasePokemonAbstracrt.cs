@@ -9,7 +9,7 @@ namespace PokemonTeamBuilder.Components.Classes
         public string PokedexEntry {  get; set; }
         public double Height { get; set; }
         public double Weight { get; set; }
-        public List<DefenceType> Types { get; set; } = new List<DefenceType>();
+        public List<PokeType> Types { get; set; } = new List<PokeType>();
         public List<AppAbilities> Abilities { get; set; } = new List<AppAbilities>();
         public List<string> Sprites { get; set; } = new List<string>();
         public List<AppStats> Stats { get; set; } = new List<AppStats>();

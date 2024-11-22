@@ -11,24 +11,37 @@ namespace PokemonTeamBuilder.Data
         {
             _context = context;
         }
-        
-        public async Task AddTypeAsync(List<AttackType> attackTypes)
+
+        public async Task AddTypeAsync(List<PokeType> pokeTypes)
         {
-            foreach (var typeToAdd in attackTypes)
+            foreach (var typeToAdd in pokeTypes)
             {
-                DefenceType defenceType = new DefenceType
-                {
-                    DefenceTypeName = typeToAdd.AttackTypeName,
-                };
-                Console.WriteLine(defenceType.DefenceTypeName);
-                _context.DefenceTypes.Add(defenceType);
-                _context.AttackTypes.Add(typeToAdd);
+                _context.PokeTypes.Add(typeToAdd);
                 await _context.SaveChangesAsync();
             }
         }
-        public async Task<List<AttackType>> GetTypeList()
+        public async Task<List<PokeType>> GetTypeList()
         {
-            return await _context.AttackTypes.ToListAsync();
+            return await _context.PokeTypes.ToListAsync();
+        }
+
+        public async Task<List<PokedexPokemon>> GetPokemonList()
+        {
+            return await _context.PokedexPokemons
+                .Select(p => new PokedexPokemon
+                {
+                    PokedexPokemonId = p.PokedexPokemonId,
+                    PokemonName = p.PokemonName,
+                    DefenceType1 = p.DefenceType1,
+                    DefenceType2 = p.DefenceType2 ?? null,
+                    Sprite = p.Sprite
+                })
+                .ToListAsync();
+        }
+
+        public async Task<PokeType> GetTypeByName(string name)
+        {
+            return _context.PokeTypes.FirstOrDefault(at => at.PokeTypeName.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
         public async Task AddTypeEffectivness(TypeEffectiveness effectiveness)
@@ -41,12 +54,6 @@ namespace PokemonTeamBuilder.Data
         {
             _context.PokedexPokemons.Add(pokemon);
             await _context.SaveChangesAsync();
-        }
-
-        public async Task<int> MatchTypeToId(string name)
-        {
-            var type = await _context.AttackTypes.FindAsync(name);
-            return type.AttackTypeId;
         }
     }
 }

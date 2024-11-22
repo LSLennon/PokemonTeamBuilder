@@ -5,34 +5,51 @@
 <MudButton Variant="Variant.Filled"
            Color="Color.Primary"
            Class="ml-auto"
-           Disabled=true
            OnClick="AddTypes">
-    AddTypes
+    Add Types
 </MudButton>
+
+<MudSpacer />
 
 <MudButton Variant="Variant.Filled"
            Color="Color.Primary"
            Class="ml-auto"
-           Disabled=true
            OnClick="AddTypeEffectivness">
-    AddTypeEffectivness
+    Add Type Effectivness
 </MudButton>
 
+<MudSpacer />
+
+<MudButton Variant="Variant.Filled"
+           Color="Color.Primary"
+           Class="ml-auto"
+           OnClick="AddNextPokemon">
+    Add Next Pokemon
+</MudButton>
 
 @code {
     private async Task AddTypes()
     {
-        List<AttackType> TypesBeingAdded = await PokeApi.AddTypeNames();
+        List<PokeType> TypesBeingAdded = await PokeApi.AddTypeNames();
         await PokeServices.AddTypeAsync(TypesBeingAdded);
     }
 
     private async Task AddTypeEffectivness()
     {
-        List<AttackType> allTypes =  await PokeServices.GetTypeList();
+        List<PokeType> allTypes =  await PokeServices.GetTypeList();
         List<TypeEffectiveness> typeEffectivenesses = await PokeApi.GetEffectiveness(allTypes);
         foreach(var i in typeEffectivenesses)
         {
             await PokeServices.AddTypeEffectivness(i);
+        }
+    }
+
+    public async Task AddNextPokemon()
+    {
+        List<PokeType> allTypes = await PokeServices.GetTypeList();
+        for(int i = 1; i <= 1024; i++)
+        {
+            await PokeServices.AddPokemon(await PokeApi.GetPokemonForDatabase(i, allTypes));
         }
     }
 }

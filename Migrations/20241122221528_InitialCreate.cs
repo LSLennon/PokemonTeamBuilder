@@ -11,29 +11,16 @@ namespace PokemonTeamBuilder.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "AttackTypes",
+                name: "PokeTypes",
                 columns: table => new
                 {
-                    AttackTypeId = table.Column<int>(type: "INTEGER", nullable: false)
+                    PokeTypeId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    AttackTypeName = table.Column<string>(type: "TEXT", nullable: false)
+                    PokeTypeName = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AttackTypes", x => x.AttackTypeId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DefenceTypes",
-                columns: table => new
-                {
-                    DefenceTypeId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    DefenceTypeName = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DefenceTypes", x => x.DefenceTypeId);
+                    table.PrimaryKey("PK_PokeTypes", x => x.PokeTypeId);
                 });
 
             migrationBuilder.CreateTable(
@@ -83,16 +70,16 @@ namespace PokemonTeamBuilder.Migrations
                 {
                     table.PrimaryKey("PK_EffectivenessTypes", x => x.TypeEffectivnessId);
                     table.ForeignKey(
-                        name: "FK_EffectivenessTypes_AttackTypes_AttackTypeId",
+                        name: "FK_EffectivenessTypes_PokeTypes_AttackTypeId",
                         column: x => x.AttackTypeId,
-                        principalTable: "AttackTypes",
-                        principalColumn: "AttackTypeId",
+                        principalTable: "PokeTypes",
+                        principalColumn: "PokeTypeId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_EffectivenessTypes_DefenceTypes_DefenceTypeId",
+                        name: "FK_EffectivenessTypes_PokeTypes_DefenceTypeId",
                         column: x => x.DefenceTypeId,
-                        principalTable: "DefenceTypes",
-                        principalColumn: "DefenceTypeId",
+                        principalTable: "PokeTypes",
+                        principalColumn: "PokeTypeId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -102,23 +89,23 @@ namespace PokemonTeamBuilder.Migrations
                 {
                     PokedexPokemonId = table.Column<string>(type: "TEXT", nullable: false),
                     PokemonName = table.Column<string>(type: "TEXT", nullable: false),
-                    DefenceType1DefenceTypeId = table.Column<int>(type: "INTEGER", nullable: false),
-                    DefenceType2DefenceTypeId = table.Column<int>(type: "INTEGER", nullable: true)
+                    DefenceType1PokeTypeId = table.Column<int>(type: "INTEGER", nullable: false),
+                    DefenceType2PokeTypeId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PokedexPokemons", x => x.PokedexPokemonId);
                     table.ForeignKey(
-                        name: "FK_PokedexPokemons_DefenceTypes_DefenceType1DefenceTypeId",
-                        column: x => x.DefenceType1DefenceTypeId,
-                        principalTable: "DefenceTypes",
-                        principalColumn: "DefenceTypeId",
+                        name: "FK_PokedexPokemons_PokeTypes_DefenceType1PokeTypeId",
+                        column: x => x.DefenceType1PokeTypeId,
+                        principalTable: "PokeTypes",
+                        principalColumn: "PokeTypeId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PokedexPokemons_DefenceTypes_DefenceType2DefenceTypeId",
-                        column: x => x.DefenceType2DefenceTypeId,
-                        principalTable: "DefenceTypes",
-                        principalColumn: "DefenceTypeId");
+                        name: "FK_PokedexPokemons_PokeTypes_DefenceType2PokeTypeId",
+                        column: x => x.DefenceType2PokeTypeId,
+                        principalTable: "PokeTypes",
+                        principalColumn: "PokeTypeId");
                 });
 
             migrationBuilder.CreateTable(
@@ -206,14 +193,14 @@ namespace PokemonTeamBuilder.Migrations
                 column: "DefenceTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PokedexPokemons_DefenceType1DefenceTypeId",
+                name: "IX_PokedexPokemons_DefenceType1PokeTypeId",
                 table: "PokedexPokemons",
-                column: "DefenceType1DefenceTypeId");
+                column: "DefenceType1PokeTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PokedexPokemons_DefenceType2DefenceTypeId",
+                name: "IX_PokedexPokemons_DefenceType2PokeTypeId",
                 table: "PokedexPokemons",
-                column: "DefenceType2DefenceTypeId");
+                column: "DefenceType2PokeTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserTeams_UserId",
@@ -240,10 +227,7 @@ namespace PokemonTeamBuilder.Migrations
                 name: "stats");
 
             migrationBuilder.DropTable(
-                name: "AttackTypes");
-
-            migrationBuilder.DropTable(
-                name: "DefenceTypes");
+                name: "PokeTypes");
 
             migrationBuilder.DropTable(
                 name: "Users");

@@ -10,9 +10,8 @@ namespace PokemonTeamBuilder.Data
         { }
 
         public DbSet<AppStats> stats { get; set; }
-        public DbSet<AttackType> AttackTypes { get; set; }
+        public DbSet<PokeType> PokeTypes { get; set; }
         public DbSet<CustomPokemon> CustomPokemons { get; set; }
-        public DbSet<DefenceType> DefenceTypes { get; set; }
         public DbSet<PokedexPokemon> PokedexPokemons { get; set; }
         public DbSet<TypeEffectiveness> EffectivenessTypes { get; set; }
         public DbSet<User> Users { get; set; }
@@ -31,12 +30,12 @@ namespace PokemonTeamBuilder.Data
 
             modelBuilder.Entity<TypeEffectiveness>()
                 .HasOne(te => te.AttackType)
-                .WithMany(at => at.Effectiveness)
+                .WithMany(at => at.AttackEffectiveness)
                 .HasForeignKey(te => te.AttackTypeId);
 
             modelBuilder.Entity<TypeEffectiveness>()
                 .HasOne(te => te.DefenceType)
-                .WithMany(dt => dt.Effectiveness)
+                .WithMany(dt => dt.DefenceEffectiveness)
                 .HasForeignKey(te => te.DefenceTypeId);
         }
 

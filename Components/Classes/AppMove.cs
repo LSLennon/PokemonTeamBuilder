@@ -7,7 +7,7 @@ namespace PokemonTeamBuilder.Components.Classes
         public int AppMoveId { get; set; }
         public string MoveName { get; set; }
         public int Accuracy { get; set; }
-        public AttackType MoveType { get; set; }
+        public PokeType MoveType { get; set; }
         public string PP { get; set; }
         public string Power { get; set; }
         public string DamgeClass { get; set; }

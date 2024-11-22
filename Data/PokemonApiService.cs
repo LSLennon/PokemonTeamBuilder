@@ -1,5 +1,4 @@
 ﻿using PokeApiNet;
-using PokemonTeamBuilder.Components.Classes;
 using PokemonTeamBuilder.Components.Classes.DatabaseClasses;
 using Type = PokeApiNet.Type;
 
@@ -8,54 +7,54 @@ namespace PokemonTeamBuilder.Data
     public class PokemonApiService
     {
         PokeApiClient pokeClient = new PokeApiClient();
-        public async Task<List<AttackType>> AddTypeNames()
+        public async Task<List<PokeType>> AddTypeNames()
         {
-            List<AttackType> pokemonTypes = new List<AttackType>();
+            List<PokeType> pokemonTypes = new List<PokeType>();
             await foreach (var typeRef in pokeClient.GetAllNamedResourcesAsync<Type>())
             {
-                AttackType typeToAdd = new AttackType();
-                typeToAdd.AttackTypeName = typeRef.Name;
+                PokeType typeToAdd = new PokeType();
+                typeToAdd.PokeTypeName = typeRef.Name;
                 pokemonTypes.Add(typeToAdd);
             }
             return pokemonTypes;
         }
 
-        public async Task<List<TypeEffectiveness>> GetEffectiveness(List<AttackType> attackTypes)
+        public async Task<List<TypeEffectiveness>> GetEffectiveness(List<PokeType> pokeTypes)
         {
             List<TypeEffectiveness> damageCalculationsToAdd = new List<TypeEffectiveness>();
-            foreach (var attackType in attackTypes)
+            foreach (var pokeType in pokeTypes)
             {
-                Type allTypes = await pokeClient.GetResourceAsync<Type>(attackType.AttackTypeName);
+                Type allTypes = await pokeClient.GetResourceAsync<Type>(pokeType.PokeTypeName);
                 foreach (var type in allTypes.DamageRelations.NoDamageTo)
                 {
-                    var matchingAttackType = attackTypes.FirstOrDefault(at => at.AttackTypeName.Equals(type.Name, StringComparison.OrdinalIgnoreCase));
+                    var matchingAttackType = pokeTypes.FirstOrDefault(at => at.PokeTypeName.Equals(type.Name, StringComparison.OrdinalIgnoreCase));
                     TypeEffectiveness addDmg = new TypeEffectiveness
                     {
-                        AttackTypeId = attackType.AttackTypeId,
+                        AttackTypeId = pokeType.PokeTypeId,
                         DamageCalculation = 0,
-                        DefenceTypeId = matchingAttackType.AttackTypeId,
+                        DefenceTypeId = matchingAttackType.PokeTypeId,
                     };
                     damageCalculationsToAdd.Add(addDmg);
                 }
                 foreach (var type in allTypes.DamageRelations.HalfDamageTo)
                 {
-                    var matchingAttackType = attackTypes.FirstOrDefault(at => at.AttackTypeName.Equals(type.Name, StringComparison.OrdinalIgnoreCase));
+                    var matchingAttackType = pokeTypes.FirstOrDefault(at => at.PokeTypeName.Equals(type.Name, StringComparison.OrdinalIgnoreCase));
                     TypeEffectiveness addDmg = new TypeEffectiveness
                     {
-                        AttackTypeId = attackType.AttackTypeId,
+                        AttackTypeId = pokeType.PokeTypeId,
                         DamageCalculation = 0.5,
-                        DefenceTypeId = matchingAttackType.AttackTypeId,
+                        DefenceTypeId = matchingAttackType.PokeTypeId,
                     };
                     damageCalculationsToAdd.Add(addDmg);
                 }
                 foreach (var type in allTypes.DamageRelations.DoubleDamageTo)
                 {
-                    var matchingAttackType = attackTypes.FirstOrDefault(at => at.AttackTypeName.Equals(type.Name, StringComparison.OrdinalIgnoreCase));
+                    var matchingAttackType = pokeTypes.FirstOrDefault(at => at.PokeTypeName.Equals(type.Name, StringComparison.OrdinalIgnoreCase));
                     TypeEffectiveness addDmg = new TypeEffectiveness
                     {
-                        AttackTypeId = attackType.AttackTypeId,
+                        AttackTypeId = pokeType.PokeTypeId,
                         DamageCalculation = 2,
-                        DefenceTypeId = matchingAttackType.AttackTypeId,
+                        DefenceTypeId = matchingAttackType.PokeTypeId,
                     };
                     damageCalculationsToAdd.Add(addDmg);
                 }
@@ -64,35 +63,35 @@ namespace PokemonTeamBuilder.Data
 
         }
 
-        public async Task<Pokemon> GetPokemonForDatabase(int NationalDexNumber, List<DefenceType> defenceTypes)
+        public PokeType getType(Type type, List<PokeType> defenceTypes)
+        {
+            var matchingPokeType = defenceTypes.FirstOrDefault(at => at.PokeTypeName.Equals(type.Name, StringComparison.OrdinalIgnoreCase));
+            if (matchingPokeType != null)
+            {
+                return matchingPokeType;
+            }
+            return null;
+        }
+
+        public async Task<PokedexPokemon> GetPokemonForDatabase(int NationalDexNumber, List<PokeType> pokeTypes)
         {
             var apiRetrun = await pokeClient.GetResourceAsync<Pokemon>(NationalDexNumber);
             List<Type> allTypes = await pokeClient.GetResourceAsync(apiRetrun.Types.Select(type => type.Type));
-            var Type1 = getType(allTypes[0], defenceTypes);
-            var Type2 = new DefenceType();
-            if(allTypes.Count == 2)
-            {
-                Type2 = getType(allTypes[1], defenceTypes);
-            }
             PokedexPokemon pokedexPokemon = new PokedexPokemon
             {
                 PokedexPokemonId = apiRetrun.Id.ToString(),
                 PokemonName = apiRetrun.Name,
-                DefenceType1 = Type1,
+                DefenceType1 = getType(allTypes[0], pokeTypes),
+                Sprite = apiRetrun.Sprites.FrontDefault,
             };
-            
-            
+            if (allTypes.Count == 2)
+            {
+                pokedexPokemon.DefenceType2 = getType(allTypes[1], pokeTypes);
+            }
+            return pokedexPokemon;
         }
 
-        public DefenceType getType(Type type, List<DefenceType> defenceTypes)
-        {
-            var matchingDefenceType = defenceTypes.FirstOrDefault(at => at.DefenceTypeName.Equals(type.Name, StringComparison.OrdinalIgnoreCase));
-            if (matchingDefenceType != null)
-            {
-                return matchingDefenceType;
-            }
-            return null;
-        }
+        
 
         /*
         public async Task<BasePokemon> GetPokemon(string IndividualName)

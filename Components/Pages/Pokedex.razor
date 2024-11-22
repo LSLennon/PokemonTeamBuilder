@@ -1,8 +1,8 @@
-﻿@inject PokemonApiService PokeService
+﻿@inject PokemonServices PokeService
 
 @page "/Pokedex"
-<!--
-<MudTable Items="@ListOfPokemon" Filter="new Func<BasePokemon,bool>(FilterFunc1)">
+
+<MudTable Items="@ListOfPokemon" Filter="new Func<PokedexPokemon,bool>(FilterFunc1)">
     <ToolBarContent>
         <MudText Typo="Typo.h6">Pokedex</MudText>
         <MudSpacer />
@@ -22,67 +22,66 @@
         <MudTh>National Dex No</MudTh>
         <MudTh>Name</MudTh>
         <MudTh>Types</MudTh>
+        <MudTh>Sprite</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="National Dex No">@context.BasePokemonId</MudTd>
+        <MudTd DataLabel="National Dex No">@context.PokedexPokemonId</MudTd>
         <MudTd DataLabel="Name">@context.PokemonName</MudTd>
         <MudTd DataLabel="Types">
-            <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@DisplayTypes(context.Types, 0)">@DisplayTypes(context.Types, 0)</MudButton>
-            <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@DisplayTypes(context.Types, 1)">@DisplayTypes(context.Types, 1)</MudButton>
+            <MudButton Variant="Variant.Filled"
+                       Size="Size.Small"
+                       Class="@context.DefenceType1.PokeTypeName">
+                @context.DefenceType1.PokeTypeName
+            </MudButton>
+            @if (context.DefenceType2 != null)
+            {
+                <MudButton Variant="Variant.Filled"
+                           Size="Size.Small"
+                           Class="@context.DefenceType2.PokeTypeName">
+                    @context.DefenceType2.PokeTypeName
+                </MudButton>
+            }
         </MudTd>
+        <MudTd DataLabel="Sprite"><MudImage Src="@context.Sprite"></MudImage></MudTd>
     </RowTemplate>
     <PagerContent>
-        <MudTablePager />
+        <MudTablePager PageSizeOptions="new int[] { 5, 10, 20 }" />
     </PagerContent>
 </MudTable>
--->
+
 
 
 @code {
-    /*
-     List<BasePokemon> ListOfPokemon = new List<BasePokemon>();
+
+    List<PokedexPokemon> ListOfPokemon = new List<PokedexPokemon>();
     public bool TypeOrName { get; set; }
     private string searchString1 = "";
-    private bool isInitialized = false;
 
     protected override async Task OnInitializedAsync()
-     {
-     }
-
-     private string DisplayTypes(List<AppPokemonType> pokemonTypes, int ZeroOrOne)
-        {
-        if(pokemonTypes.Count - ZeroOrOne != 0) //Only returns null if a pokemon has 1 type because the count is 1 and its past 1
-            {
-            return pokemonTypes[ZeroOrOne].TypeName;
-        }
-    return "null";
+    {
+        ListOfPokemon = await PokeService.GetPokemonList();
+        StateHasChanged();
     }
 
+    private bool FilterFunc1(PokedexPokemon pokemon) => FilterFunc(pokemon, searchString1);
 
-
-
-    private bool FilterFunc1(BasePokemon pokemon) => FilterFunc(pokemon, searchString1);
-
-    private bool FilterFunc(BasePokemon pokemon, string searchString)
-        {
+    private bool FilterFunc(PokedexPokemon pokemon, string searchString)
+    {
         if (string.IsNullOrWhiteSpace(searchString))
-        return true;
-        if (!TypeOrName)
-            {
-            if (pokemon.PokemonName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        return false;
+
+        if (!TypeOrName)
+        {
+            return pokemon.PokemonName.Contains(searchString, StringComparison.OrdinalIgnoreCase);
         }
         else
-            {
-            foreach (var monster in pokemon.Types)
-                {
-                if (monster.TypeName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-            }
-        return false;
-     }
+        {
+            if (pokemon.DefenceType1.PokeTypeName.Equals(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (pokemon.DefenceType2?.PokeTypeName?.Equals(searchString, StringComparison.OrdinalIgnoreCase) == true)
+                return true;
         }
-    */
-    
+        return false;
+    }
 }
