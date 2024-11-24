@@ -6,23 +6,34 @@
 
 @if (isReady)
 {
-    @basePokemon.PokemonName
-    <br />
-    @basePokemon.PokedexEntry
-    <br />
-    @basePokemon.Sprites[0].Url
-    <br />
-    @basePokemon.Types[0].PokeTypeName
-    <br />
-    @basePokemon.Height <p>cm</p>
-    <br />
-    @basePokemon.Weight <p>grams</p>
-    <br />
-    @basePokemon.Abilities[0].AbilityDescription
-    <br />
-    @basePokemon.Abilities[0].AbilityName
-    <br />
-    @basePokemon.Stats[0].Attack
+    <h3>Base Pokemon Details</h3>
+
+    <p>
+        <strong>Name:</strong> @basePokemon.PokemonName
+    </p>
+    <p>
+        <strong>Pokedex Entry:</strong> @basePokemon.PokedexEntry
+    </p>
+    <p>
+        <strong>Sprite:</strong>
+        <img src="@basePokemon.Sprites[0].Url" alt="Pokemon Sprite" />
+    </p>
+    <p>
+        <strong>Type:</strong> @basePokemon.Types[0].PokeTypeName
+    </p>
+    <p>
+        <strong>Height:</strong> @((basePokemon.Height / 10.0).ToString("0.0")) m <!-- I still wanted the decimal place to be displayed but Blazor doesnt like that -->
+    </p>
+    <p>
+        <strong>Weight:</strong> @((basePokemon.Weight / 10.0).ToString("0.0")) kg <!-- I still wanted the decimal place to be displayed but Blazor doesnt like that -->
+    </p>
+    <p>
+        <strong>Primary Ability:</strong> @basePokemon.Abilities[0].AbilityName - @basePokemon.Abilities[0].AbilityDescription
+    </p>
+    <p>
+        <strong>Attack:</strong> @basePokemon.Stats[0].Attack
+    </p>
+
 }
 
 

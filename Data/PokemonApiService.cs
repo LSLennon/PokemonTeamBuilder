@@ -1,6 +1,8 @@
 ﻿using PokeApiNet;
 using PokemonTeamBuilder.Components.Classes;
 using PokemonTeamBuilder.Components.Classes.DatabaseClasses;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Type = PokeApiNet.Type;
 
 namespace PokemonTeamBuilder.Data
@@ -89,8 +91,10 @@ namespace PokemonTeamBuilder.Data
             {
                 BasePokemonId = apiRetrun.Id.ToString(),
                 PokemonName = apiRetrun.Name,
-                Height = apiRetrun.Height/10, //coverts from decimeters to cm
-                Weight = apiRetrun.Weight/100, //converts from hectograms to gramms
+                Height = apiRetrun.Height, //coverts from decimeters to cm
+                Weight = apiRetrun.Weight, //converts from hectograms to gramms
+                PokedexEntry = await GetPokedexEntry(IndividualName),
+                Moves = (await GetMove(apiRetrun.Moves, pokeTypes)),
             };
             List<Type> allTypes = await pokeClient.GetResourceAsync(apiRetrun.Types.Select(type => type.Type));
             foreach (var type in allTypes)
@@ -120,7 +124,7 @@ namespace PokemonTeamBuilder.Data
             return basePokemon;
         }
 
-        public PokeType GetType(Type type, List<PokeType> defenceTypes)
+        public PokeType GetType(dynamic type, List<PokeType> defenceTypes)
         {
             var matchingPokeType = defenceTypes.FirstOrDefault(at => at.PokeTypeName.Equals(type.Name, StringComparison.OrdinalIgnoreCase));
             if (matchingPokeType != null)
@@ -130,36 +134,12 @@ namespace PokemonTeamBuilder.Data
             return null;
         }
 
-        public async Task<PokeAbilities> GetAbility(PokemonAbility ability)
-        {
-            var apiRetrun = await pokeClient.GetResourceAsync<Ability>(ability.Ability);
-            var EnglishFlavourTexts = apiRetrun.FlavorTextEntries
-                .Where(ft => ft.Language.Name == "en");
-            string NewestFlavourText = "";
-            int NewestFlavourIndex = 0;
-            foreach (var item in EnglishFlavourTexts)
-            {
-                int id = int.Parse(item.VersionGroup.Url.Substring(item.VersionGroup.Url.Length - 3).Trim('/'));
-                if (id > NewestFlavourIndex)
-                {
-                    NewestFlavourText = item.FlavorText;
-                }
-            }
-            PokeAbilities returnPokeAbility = new PokeAbilities
-            {
-                AbilityName = apiRetrun.Name,
-                AbilityDescription = NewestFlavourText,
-            };
-            return returnPokeAbility;
-        }
-
-
         public async Task<PokeStats> GetStats(List<PokemonStat> stats)
         {
             PokeStats returnPokeStats = new PokeStats();
             foreach (var sta in stats)
             {
-                if(sta.Stat.Name == "hp")
+                if (sta.Stat.Name == "hp")
                 {
                     returnPokeStats.HP = sta.BaseStat;
                 }
@@ -186,11 +166,110 @@ namespace PokemonTeamBuilder.Data
             }
             return returnPokeStats;
         }
+
+        public async Task<List<PokeMove>> GetMove(List<PokemonMove> Moves, List<PokeType> moveTypes)
+        {
+            List<PokeMove> returnedMoves = new List<PokeMove>();
+
+            int NewestGameIndex = 0;
+            foreach (var item in Moves)
+            {
+                foreach (var i in item.VersionGroupDetails)
+                {
+                    int id = int.Parse(i.VersionGroup.Url.Substring(i.VersionGroup.Url.Length - 3).Trim('/'));
+                    if (id > NewestGameIndex)
+                    {
+                        NewestGameIndex = id;
+                    }
+                }
+            }
+            foreach (var item in Moves)
+            {
+                foreach (var i in item.VersionGroupDetails)
+                {
+                    int id = int.Parse(i.VersionGroup.Url.Substring(i.VersionGroup.Url.Length - 3).Trim('/'));
+                    if (id == NewestGameIndex)
+                    {
+                        var apiReturn = await pokeClient.GetResourceAsync<Move>(item.Move.Name);
+                        PokeMove moveToAdd = new PokeMove
+                        {
+                            PokeMoveId = apiReturn.Id,
+                            MoveName = apiReturn.Name,
+                            Accuracy = apiReturn.Accuracy,
+                            MoveType = GetType(apiReturn.Type, moveTypes),
+                            PP = apiReturn.Pp,
+                            Power = apiReturn.Power,
+                            DamgeClass = apiReturn.DamageClass.Name,
+                            FlavourText = await GetFlavourText(apiReturn.FlavorTextEntries)
+                        };
+                        returnedMoves.Add(moveToAdd);
+                    }
+                }
+            }
+            return returnedMoves;
+        }
+
+        public async Task<PokeAbilities> GetAbility(PokemonAbility ability)
+        {
+            var apiRetrun = await pokeClient.GetResourceAsync<Ability>(ability.Ability);
+            PokeAbilities returnPokeAbility = new PokeAbilities
+            {
+                AbilityName = apiRetrun.Name,
+                AbilityDescription = await GetFlavourText(apiRetrun.FlavorTextEntries),
+            };
+            return returnPokeAbility;
+        }
+
+        public async Task<string> GetPokedexEntry(string species)
+        {
+            var apireturn = await pokeClient.GetResourceAsync<PokemonSpecies>(species);
+            return await GetFlavourText(apireturn.FlavorTextEntries);
+        }
+
+        public async Task<string> GetFlavourText(IEnumerable<dynamic> flavourTexts)
+        {
+            var EnglishFlavourTexts = flavourTexts
+                .Where(ft => ft.Language.Name == "en");
+            string NewestFlavourText = "";
+            int NewestFlavourIndex = 0;
+            foreach (var item in EnglishFlavourTexts)
+            {
+                int id = 0;
+                if (item is AbilityFlavorText || item is MoveFlavorText)
+                {
+                    id = int.Parse(item.VersionGroup.Url.Substring(item.VersionGroup.Url.Length - 3).Trim('/'));
+                }
+                if (item is PokemonSpeciesFlavorTexts)
+                {
+                    id = int.Parse(item.Version.Url.Substring(item.Version.Url.Length - 3).Trim('/'));
+                }
+                if (id > NewestFlavourIndex)
+                {
+                    NewestFlavourText = item.FlavorText;
+                }
+            }
+            return NewestFlavourText;
+        }
         /*
+         * IEnumerable<dynamic>
+         * List<PokemonSpeciesFlavorTexts>
+         * List<AbilityFlavorText>
                         public async Task<PokeMove> GetMove()
                         {
 
                         }
+
+
                         */
+    }
+
+    public class FlavourTextDTO
+    {
+        public string FlavorText { get; set; }
+
+        public NamedApiResource<Language> Language { get; set; }
+
+        [JsonPropertyName("version_group")]
+        public NamedApiResource<VersionGroup> VersionGroup { get; set; }
     }
 }
