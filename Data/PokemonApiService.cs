@@ -89,8 +89,8 @@ namespace PokemonTeamBuilder.Data
             {
                 BasePokemonId = apiRetrun.Id.ToString(),
                 PokemonName = apiRetrun.Name,
-                Height = apiRetrun.Height/10,
-                Weight = apiRetrun.Weight/100,
+                Height = apiRetrun.Height/10, //coverts from decimeters to cm
+                Weight = apiRetrun.Weight/100, //converts from hectograms to gramms
             };
             List<Type> allTypes = await pokeClient.GetResourceAsync(apiRetrun.Types.Select(type => type.Type));
             foreach (var type in allTypes)
