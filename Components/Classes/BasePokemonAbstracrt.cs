@@ -1,4 +1,5 @@
-﻿using PokemonTeamBuilder.Components.Classes.DatabaseClasses;
+﻿using PokeApiNet;
+using PokemonTeamBuilder.Components.Classes.DatabaseClasses;
 
 namespace PokemonTeamBuilder.Components.Classes
 {
@@ -10,10 +11,10 @@ namespace PokemonTeamBuilder.Components.Classes
         public double Height { get; set; }
         public double Weight { get; set; }
         public List<PokeType> Types { get; set; } = new List<PokeType>();
-        public List<AppAbilities> Abilities { get; set; } = new List<AppAbilities>();
-        public List<string> Sprites { get; set; } = new List<string>();
-        public List<AppStats> Stats { get; set; } = new List<AppStats>();
-        public List<AppMove> Moves { get; set; } = new List<AppMove>();
+        public List<PokeAbilities> Abilities { get; set; } = new List<PokeAbilities>();
+        public List<PokeSprites> Sprites { get; set; } = new List<PokeSprites>();
+        public List<PokeStats> Stats { get; set; } = new List<PokeStats>();
+        public List<PokeMove> Moves { get; set; } = new List<PokeMove>();
        
     }
 }

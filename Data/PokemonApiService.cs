@@ -1,4 +1,5 @@
 ﻿using PokeApiNet;
+using PokemonTeamBuilder.Components.Classes;
 using PokemonTeamBuilder.Components.Classes.DatabaseClasses;
 using Type = PokeApiNet.Type;
 
@@ -63,7 +64,63 @@ namespace PokemonTeamBuilder.Data
 
         }
 
-        public PokeType getType(Type type, List<PokeType> defenceTypes)
+        public async Task<PokedexPokemon> GetPokemonForDatabase(int NationalDexNumber, List<PokeType> pokeTypes)
+        {
+            var apiRetrun = await pokeClient.GetResourceAsync<Pokemon>(NationalDexNumber);
+            List<Type> allTypes = await pokeClient.GetResourceAsync(apiRetrun.Types.Select(type => type.Type));
+            var pokedexPokemon = new PokedexPokemon
+            {
+                PokedexPokemonId = apiRetrun.Id.ToString(),
+                PokemonName = apiRetrun.Name,
+                DefenceType1 = GetType(allTypes[0], pokeTypes),
+                Sprite = apiRetrun.Sprites.FrontDefault,
+            };
+            if (allTypes.Count == 2)
+            {
+                pokedexPokemon.DefenceType2 = GetType(allTypes[1], pokeTypes);
+            }
+            return pokedexPokemon;
+        }
+
+        public async Task<BasePokemon> GetPokemon(string IndividualName, List<PokeType> pokeTypes)
+        {
+            var apiRetrun = await pokeClient.GetResourceAsync<Pokemon>(IndividualName);
+            var basePokemon = new BasePokemon
+            {
+                BasePokemonId = apiRetrun.Id.ToString(),
+                PokemonName = apiRetrun.Name,
+                Height = apiRetrun.Height,
+                Weight = apiRetrun.Weight,
+            };
+            List<Type> allTypes = await pokeClient.GetResourceAsync(apiRetrun.Types.Select(type => type.Type));
+            foreach (var type in allTypes)
+            {
+                var testedType = GetType(type, pokeTypes);
+                if (testedType != null)
+                {
+                    basePokemon.Types.Add(testedType);
+                }
+            };
+            foreach (var ability in apiRetrun.Abilities)
+            {
+                basePokemon.Abilities.Add(await GetAbility(ability));
+            }
+            basePokemon.Sprites.Add(new PokeSprites
+            {
+                isDefault = true,
+                Url = apiRetrun.Sprites.FrontDefault,
+            });
+            basePokemon.Sprites.Add(new PokeSprites
+            {
+                isDefault = false,
+                Url = apiRetrun.Sprites.FrontShiny,
+            });
+            basePokemon.Stats.Add(await GetStats(apiRetrun.Stats));
+
+            return basePokemon;
+        }
+
+        public PokeType GetType(Type type, List<PokeType> defenceTypes)
         {
             var matchingPokeType = defenceTypes.FirstOrDefault(at => at.PokeTypeName.Equals(type.Name, StringComparison.OrdinalIgnoreCase));
             if (matchingPokeType != null)
@@ -73,46 +130,67 @@ namespace PokemonTeamBuilder.Data
             return null;
         }
 
-        public async Task<PokedexPokemon> GetPokemonForDatabase(int NationalDexNumber, List<PokeType> pokeTypes)
+        public async Task<PokeAbilities> GetAbility(PokemonAbility ability)
         {
-            var apiRetrun = await pokeClient.GetResourceAsync<Pokemon>(NationalDexNumber);
-            List<Type> allTypes = await pokeClient.GetResourceAsync(apiRetrun.Types.Select(type => type.Type));
-            PokedexPokemon pokedexPokemon = new PokedexPokemon
+            var apiRetrun = await pokeClient.GetResourceAsync<Ability>(ability.Ability);
+            var EnglishFlavourTexts = apiRetrun.FlavorTextEntries
+                .Where(ft => ft.Language.Name == "en");
+            string NewestFlavourText = "";
+            int NewestFlavourIndex = 0;
+            foreach (var item in EnglishFlavourTexts)
             {
-                PokedexPokemonId = apiRetrun.Id.ToString(),
-                PokemonName = apiRetrun.Name,
-                DefenceType1 = getType(allTypes[0], pokeTypes),
-                Sprite = apiRetrun.Sprites.FrontDefault,
-            };
-            if (allTypes.Count == 2)
-            {
-                pokedexPokemon.DefenceType2 = getType(allTypes[1], pokeTypes);
-            }
-            return pokedexPokemon;
-        }
-
-        
-
-        /*
-        public async Task<BasePokemon> GetPokemon(string IndividualName)
-        {
-            var apiRetrun = await pokeClient.GetResourceAsync<Pokemon>(IndividualName);
-            var basePokemon = new BasePokemon
-            {
-                BasePokemonId = apiRetrun.Id.ToString(),
-                PokemonName = apiRetrun.Name,
-            };
-            List<Type> allTypes = await pokeClient.GetResourceAsync(apiRetrun.Types.Select(type => type.Type));
-            foreach (var type in allTypes)
-            {
-                AppPokemonType pokemonType = new AppPokemonType
+                int id = int.Parse(item.VersionGroup.Url.Substring(item.VersionGroup.Url.Length - 3).Trim('/'));
+                if (id > NewestFlavourIndex)
                 {
-                   TypeName = type.Name,
-                };
-                basePokemon.Types.Add(pokemonType);
+                    NewestFlavourText = item.FlavorText;
+                }
             }
-            return basePokemon;
+            PokeAbilities returnPokeAbility = new PokeAbilities
+            {
+                AbilityName = apiRetrun.Name,
+                AbilityDescription = NewestFlavourText,
+            };
+            return returnPokeAbility;
         }
-        */
+
+
+        public async Task<PokeStats> GetStats(List<PokemonStat> stats)
+        {
+            PokeStats returnPokeStats = new PokeStats();
+            foreach (var sta in stats)
+            {
+                if(sta.Stat.Name == "hp")
+                {
+                    returnPokeStats.HP = sta.BaseStat;
+                }
+                if (sta.Stat.Name == "attack")
+                {
+                    returnPokeStats.Attack = sta.BaseStat;
+                }
+                if (sta.Stat.Name == "defense")
+                {
+                    returnPokeStats.Defence = sta.BaseStat;
+                }
+                if (sta.Stat.Name == "special-attack")
+                {
+                    returnPokeStats.SpAttack = sta.BaseStat;
+                }
+                if (sta.Stat.Name == "special-defense")
+                {
+                    returnPokeStats.SpDefence = sta.BaseStat;
+                }
+                if (sta.Stat.Name == "speed")
+                {
+                    returnPokeStats.Speed = sta.BaseStat;
+                }
+            }
+            return returnPokeStats;
+        }
+        /*
+                        public async Task<PokeMove> GetMove()
+                        {
+
+                        }
+                        */
     }
 }

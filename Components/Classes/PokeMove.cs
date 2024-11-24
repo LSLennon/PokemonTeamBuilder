@@ -2,9 +2,9 @@
 
 namespace PokemonTeamBuilder.Components.Classes
 {
-    public class AppMove
+    public class PokeMove
     {
-        public int AppMoveId { get; set; }
+        public int PokeMoveId { get; set; }
         public string MoveName { get; set; }
         public int Accuracy { get; set; }
         public PokeType MoveType { get; set; }

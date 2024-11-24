@@ -1,61 +1,88 @@
 ﻿@inject PokemonServices PokeService
-
+@inject NavigationManager NavigationManager
 @page "/Pokedex"
 
-<MudTable Items="@ListOfPokemon" Filter="new Func<PokedexPokemon,bool>(FilterFunc1)">
-    <ToolBarContent>
-        <MudText Typo="Typo.h6">Pokedex</MudText>
-        <MudSpacer />
-        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-        <MudSpacer />
-        <MudToggleIconButton @bind-Toggled="TypeOrName"
-                             Size="Size.Large"
-                             Icon="@Icons.Material.Filled.ToggleOff"
-                             Color="@Color.Error"
-                             ToggledIcon="@Icons.Material.Filled.ToggleOn"
-                             ToggledColor="@Color.Success"
-                             title="@(TypeOrName ? "Type" : "Name")" />
+<MudPaper Class="p-4">
+    <MudText Typo="Typo.h2" Class="ma-4">Pokedex</MudText>
+    <MudDivider Class="ma-2" />
+    <MudTextField @bind-Value="searchString1"
+                  Placeholder="Search"
+                  Adornment="Adornment.Start"
+                  AdornmentIcon="@Icons.Material.Filled.Search"
+                  IconSize="Size.Medium"
+                  Class="mb-4 ml-4"
+                  Style="max-width: 20%;" />
 
-        <span>Searching for @(TypeOrName ? "Type" : "Name")</span>
-    </ToolBarContent>
-    <HeaderContent>
-        <MudTh>National Dex No</MudTh>
-        <MudTh>Name</MudTh>
-        <MudTh>Types</MudTh>
-        <MudTh>Sprite</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="National Dex No">@context.PokedexPokemonId</MudTd>
-        <MudTd DataLabel="Name">@context.PokemonName</MudTd>
-        <MudTd DataLabel="Types">
-            <MudButton Variant="Variant.Filled"
-                       Size="Size.Small"
-                       Class="@context.DefenceType1.PokeTypeName">
-                @context.DefenceType1.PokeTypeName
-            </MudButton>
-            @if (context.DefenceType2 != null)
-            {
-                <MudButton Variant="Variant.Filled"
-                           Size="Size.Small"
-                           Class="@context.DefenceType2.PokeTypeName">
-                    @context.DefenceType2.PokeTypeName
-                </MudButton>
-            }
-        </MudTd>
-        <MudTd DataLabel="Sprite"><MudImage Src="@context.Sprite"></MudImage></MudTd>
-    </RowTemplate>
-    <PagerContent>
-        <MudTablePager PageSizeOptions="new int[] { 5, 10, 20 }" />
-    </PagerContent>
-</MudTable>
+    <MudToggleIconButton @bind-Toggled="TypeOrName"
+                         Size="Size.Large"
+                         Icon="@Icons.Material.Filled.ToggleOff"
+                         Color="@Color.Error"
+                         ToggledIcon="@Icons.Material.Filled.ToggleOn"
+                         ToggledColor="@Color.Success"
+                         title="@(TypeOrName ? "Type" : "Name")" />
+    <span class="ml-2">Searching for @(TypeOrName ? "Type" : "Name")</span>
 
 
+    <MudDivider Class="my-4" />
+
+    <MudGrid>
+        @foreach (var pokemon in FilteredPokemon)
+        {
+            <MudItem xs="6" sm="4" md="3" lg="2">
+                <MudCard>
+
+                    <MudCardActions>
+                        <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Secondary" OnClick="@(()=> ClickPokemon(pokemon.PokemonName))" />
+                    </MudCardActions>
+                    <MudImage Src="@pokemon.Sprite"
+                              Alt="@pokemon.PokemonName"
+                              Fluid="true"/>
+                    <MudCardContent>
+                        <MudText Typo="Typo.h6">@pokemon.PokemonName.CapitalizeName()</MudText>
+                        <MudText Typo="Typo.body2">Dex No: @pokemon.PokedexPokemonId</MudText>
+                        <MudStack Direction="Row" Spacing="1">
+                            <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@pokemon.DefenceType1.PokeTypeName">
+                                @pokemon.DefenceType1.PokeTypeName
+                            </MudButton>
+                            @if (pokemon.DefenceType2 != null)
+                            {
+                                <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@pokemon.DefenceType2.PokeTypeName">
+                                    @pokemon.DefenceType2.PokeTypeName
+                                </MudButton>
+                            }
+                        </MudStack>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+
+    <MudDivider Class="my-4" />
+
+    <MudSelect @bind-Value="pageSize" Label="Page Size" Class="mb-4 ml-4" Style="max-width: 10%;">
+        @foreach (var size in PageSizes)
+        {
+            <MudSelectItem Value="@size">@size</MudSelectItem>
+        }
+    </MudSelect>
+
+    <MudPagination Color="Color.Primary" Count="@TotalPages" @bind-Selected="CurrentPage" Class="mb-4 ml-2" />
+
+</MudPaper>
 
 @code {
 
     List<PokedexPokemon> ListOfPokemon = new List<PokedexPokemon>();
+
     public bool TypeOrName { get; set; }
     private string searchString1 = "";
+
+    private static readonly int[] PageSizes = { 12, 24, 36, 48 };
+    private int pageSize { get; set; } = PageSizes[0];
+
+    private int TotalPages => (int)Math.Ceiling(UnpaginatedFilteredPokemon.Count() / (double)pageSize);
+
+    private int CurrentPage { get; set; } = 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,25 +90,30 @@
         StateHasChanged();
     }
 
-    private bool FilterFunc1(PokedexPokemon pokemon) => FilterFunc(pokemon, searchString1);
+    //used to calulate pages
+    private IEnumerable<PokedexPokemon> UnpaginatedFilteredPokemon =>
+    ListOfPokemon
+    .Where(pokemon => string.IsNullOrWhiteSpace(searchString1) ||
+    (TypeOrName ? pokemon.DefenceType1.PokeTypeName.Contains(searchString1, StringComparison.OrdinalIgnoreCase) :
+    pokemon.PokemonName.Contains(searchString1, StringComparison.OrdinalIgnoreCase)));
 
-    private bool FilterFunc(PokedexPokemon pokemon, string searchString)
+    private IEnumerable<PokedexPokemon> FilteredPokemon =>
+    UnpaginatedFilteredPokemon
+    .Skip((CurrentPage - 1) * pageSize)
+    .Take(pageSize);
+
+    private void OnPageChanged(int newPage)
     {
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-
-        if (!TypeOrName)
+        CurrentPage = newPage;
+        if (CurrentPage > TotalPages)
         {
-            return pokemon.PokemonName.Contains(searchString, StringComparison.OrdinalIgnoreCase);
+            CurrentPage = TotalPages;
         }
-        else
-        {
-            if (pokemon.DefenceType1.PokeTypeName.Equals(searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-
-            if (pokemon.DefenceType2?.PokeTypeName?.Equals(searchString, StringComparison.OrdinalIgnoreCase) == true)
-                return true;
-        }
-        return false;
     }
+
+    private void ClickPokemon(string clickedPokemon)
+    {
+        NavigationManager.NavigateTo($"/{clickedPokemon}");
+    }
+
 }

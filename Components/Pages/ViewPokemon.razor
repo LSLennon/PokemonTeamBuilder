@@ -1,0 +1,19 @@
+﻿@inject PokemonServices PokeService
+@inject NavigationManager NavigationManager
+@inject PokemonApiService PokeApi
+
+@page "/{OnePokemon}"
+
+@OnePokemon
+
+@code {
+    [Parameter]
+    public string OnePokemon { get; set; }
+
+    BasePokemon basePokemon = new BasePokemon();
+
+    protected override async Task OnInitializedAsync()
+    {
+        StateHasChanged();
+    }
+}

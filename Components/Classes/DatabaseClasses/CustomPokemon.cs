@@ -14,8 +14,8 @@
         public UserTeam UserTeam { get; set; }
 
 
-        public AppStats CustomPokemonEVs { get; set; }
-        public AppStats CustomPokemonIVs { get; set; }
+        public PokeStats CustomPokemonEVs { get; set; }
+        public PokeStats CustomPokemonIVs { get; set; }
 
         public int CustomPokemonEVsId { get; set; }
         public int CustomPokemonIVsId { get; set; }

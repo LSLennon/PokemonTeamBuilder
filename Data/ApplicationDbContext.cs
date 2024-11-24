@@ -9,7 +9,7 @@ namespace PokemonTeamBuilder.Data
             : base(options)
         { }
 
-        public DbSet<AppStats> stats { get; set; }
+        public DbSet<PokeStats> stats { get; set; }
         public DbSet<PokeType> PokeTypes { get; set; }
         public DbSet<CustomPokemon> CustomPokemons { get; set; }
         public DbSet<PokedexPokemon> PokedexPokemons { get; set; }
