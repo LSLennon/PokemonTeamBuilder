@@ -16,6 +16,9 @@ namespace PokemonTeamBuilder.Data
         public DbSet<TypeEffectiveness> EffectivenessTypes { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserTeam> UserTeams { get; set; }
+        public DbSet<PokeMove> PokeMoves { get; set; }
+        public DbSet<PokeMethod> PokeMethods { get; set; }
+        public DbSet<MovesLearnedByPokemon> MovesLearnedByPokemons { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -37,6 +40,20 @@ namespace PokemonTeamBuilder.Data
                 .HasOne(te => te.DefenceType)
                 .WithMany(dt => dt.DefenceEffectiveness)
                 .HasForeignKey(te => te.DefenceTypeId);
+
+            modelBuilder.Entity<MovesLearnedByPokemon>()
+            .HasKey(ml => new { ml.PokeMoveId, ml.PokedexPokemonId });
+
+            // Configure relationships
+            modelBuilder.Entity<MovesLearnedByPokemon>()
+                .HasOne(ml => ml.PokeMove)
+                .WithMany(pm => pm.MovesLearnedByPokemons)
+                .HasForeignKey(ml => ml.PokeMoveId);
+
+            modelBuilder.Entity<MovesLearnedByPokemon>()
+                .HasOne(ml => ml.PokedexPokemon)
+                .WithMany(pp => pp.Moves)
+                .HasForeignKey(ml => ml.PokedexPokemonId);
         }
 
     }

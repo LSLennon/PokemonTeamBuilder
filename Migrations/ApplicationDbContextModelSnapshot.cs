@@ -17,35 +17,6 @@ namespace PokemonTeamBuilder.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
 
-            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.AppStats", b =>
-                {
-                    b.Property<int>("AppStatsId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Attack")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Defence")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("HP")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("SpAttack")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("SpDefence")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Speed")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("AppStatsId");
-
-                    b.ToTable("stats");
-                });
-
             modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.CustomPokemon", b =>
                 {
                     b.Property<int>("CustomPokemonId")
@@ -95,6 +66,114 @@ namespace PokemonTeamBuilder.Migrations
                     b.ToTable("CustomPokemons");
                 });
 
+            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.MovesLearnedByPokemon", b =>
+                {
+                    b.Property<int>("PokeMoveId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PokedexPokemonId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PokeMethodId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("PokeMoveId", "PokedexPokemonId");
+
+                    b.HasIndex("PokeMethodId");
+
+                    b.HasIndex("PokedexPokemonId");
+
+                    b.ToTable("MovesLearnedByPokemons");
+                });
+
+            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeMethod", b =>
+                {
+                    b.Property<int>("PokeMethodId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("PokeMethodId");
+
+                    b.ToTable("PokeMethods");
+                });
+
+            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeMove", b =>
+                {
+                    b.Property<int>("PokeMoveId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("Accuracy")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DamgeClass")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FlavourText")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MoveName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MoveTypePokeTypeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("PP")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("Power")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("PokeMoveId");
+
+                    b.HasIndex("MoveTypePokeTypeId");
+
+                    b.ToTable("PokeMoves");
+                });
+
+            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeStats", b =>
+                {
+                    b.Property<int>("PokeStatsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Attack")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Defence")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("HP")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SpAttack")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SpDefence")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Speed")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("PokeStatsId");
+
+                    b.ToTable("stats");
+                });
+
             modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeType", b =>
                 {
                     b.Property<int>("PokeTypeId")
@@ -112,8 +191,9 @@ namespace PokemonTeamBuilder.Migrations
 
             modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokedexPokemon", b =>
                 {
-                    b.Property<string>("PokedexPokemonId")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("PokedexPokemonId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("DefenceType1PokeTypeId")
                         .HasColumnType("INTEGER");
@@ -121,7 +201,15 @@ namespace PokemonTeamBuilder.Migrations
                     b.Property<int?>("DefenceType2PokeTypeId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("LastVersion")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("PokemonName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Sprite")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -203,13 +291,13 @@ namespace PokemonTeamBuilder.Migrations
 
             modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.CustomPokemon", b =>
                 {
-                    b.HasOne("PokemonTeamBuilder.Components.Classes.DatabaseClasses.AppStats", "CustomPokemonEVs")
+                    b.HasOne("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeStats", "CustomPokemonEVs")
                         .WithMany()
                         .HasForeignKey("CustomPokemonEVsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PokemonTeamBuilder.Components.Classes.DatabaseClasses.AppStats", "CustomPokemonIVs")
+                    b.HasOne("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeStats", "CustomPokemonIVs")
                         .WithMany()
                         .HasForeignKey("CustomPokemonIVsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -226,6 +314,44 @@ namespace PokemonTeamBuilder.Migrations
                     b.Navigation("CustomPokemonIVs");
 
                     b.Navigation("UserTeam");
+                });
+
+            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.MovesLearnedByPokemon", b =>
+                {
+                    b.HasOne("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeMethod", "PokeMethod")
+                        .WithMany()
+                        .HasForeignKey("PokeMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeMove", "PokeMove")
+                        .WithMany("MovesLearnedByPokemons")
+                        .HasForeignKey("PokeMoveId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokedexPokemon", "PokedexPokemon")
+                        .WithMany("Moves")
+                        .HasForeignKey("PokedexPokemonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PokeMethod");
+
+                    b.Navigation("PokeMove");
+
+                    b.Navigation("PokedexPokemon");
+                });
+
+            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeMove", b =>
+                {
+                    b.HasOne("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeType", "MoveType")
+                        .WithMany()
+                        .HasForeignKey("MoveTypePokeTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MoveType");
                 });
 
             modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokedexPokemon", b =>
@@ -275,11 +401,21 @@ namespace PokemonTeamBuilder.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeMove", b =>
+                {
+                    b.Navigation("MovesLearnedByPokemons");
+                });
+
             modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokeType", b =>
                 {
                     b.Navigation("AttackEffectiveness");
 
                     b.Navigation("DefenceEffectiveness");
+                });
+
+            modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.PokedexPokemon", b =>
+                {
+                    b.Navigation("Moves");
                 });
 
             modelBuilder.Entity("PokemonTeamBuilder.Components.Classes.DatabaseClasses.User", b =>

@@ -2,7 +2,7 @@
 @inject NavigationManager NavigationManager
 @inject PokemonApiService PokeApi
 
-@page "/{OnePokemon}"
+@page "/{OnePokemon}/{LastVersion}"
 
 @if (isReady)
 {
@@ -34,13 +34,45 @@
         <strong>Attack:</strong> @basePokemon.Stats[0].Attack
     </p>
 
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Move Name</th>
+                <th>Accuracy</th>
+                <th>Type</th>
+                <th>PP</th>
+                <th>Power</th>
+                <th>Damage Class</th>
+                <th>Flavour Text</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var move in basePokemon.Moves)
+            {
+                <tr>
+                    <td>@move.PokeMoveId</td>
+                    <td>@move.MoveName</td>
+                    <td>@(move.Accuracy.HasValue ? $"{move.Accuracy}%" : "N/A")</td>
+                    <td>@move.MoveType.PokeTypeName</td>
+                    <td>@(move.PP.HasValue ? move.PP : "N/A")</td>
+                    <td>@(move.Power.HasValue ? move.Power : "N/A")</td>
+                    <td>@move.DamgeClass</td>
+                    <td>@move.FlavourText</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
 
 @code {
     [Parameter]
     public string OnePokemon { get; set; }
+    [Parameter]
+    public string LastVersion { get; set; }
 
+    PokedexPokemon pokedexPokemon = new PokedexPokemon();
     BasePokemon basePokemon = new BasePokemon();
     List<PokeType> allTypes = new List<PokeType>();
 
@@ -48,9 +80,28 @@
 
     protected override async Task OnInitializedAsync()
     {
+        pokedexPokemon = await PokeService.GetPokemonByName(OnePokemon);
         allTypes = await PokeService.GetTypeList();
-        basePokemon = await PokeApi.GetPokemon(OnePokemon, allTypes);
+        basePokemon = await PokeApi.GetPokemon(OnePokemon, allTypes, LastVersion);
+        basePokemon = await AddToBasePokemon(basePokemon, pokedexPokemon);
         isReady = true;
-        StateHasChanged();
+    }
+
+    public async Task<BasePokemon> AddToBasePokemon(BasePokemon basePokemon, PokedexPokemon pokedexPokemon)
+    {
+        basePokemon.BasePokemonId = pokedexPokemon.PokedexPokemonId;
+        basePokemon.PokemonName = pokedexPokemon.PokemonName;
+        basePokemon.Types.Add(pokedexPokemon.DefenceType1);
+
+        if (pokedexPokemon.DefenceType2 != null)
+        {
+            basePokemon.Types.Add(pokedexPokemon.DefenceType2);
+        }
+        foreach(var move in pokedexPokemon.Moves)
+        {
+            
+        }
+        return basePokemon;
     }
 }
+        

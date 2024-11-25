@@ -32,7 +32,7 @@
                 <MudCard>
 
                     <MudCardActions>
-                        <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Secondary" OnClick="@(()=> ClickPokemon(pokemon.PokemonName))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Secondary" OnClick="@(()=> ClickPokemon(pokemon.PokemonName, pokemon.LastVersion))" />
                     </MudCardActions>
                     <MudImage Src="@pokemon.Sprite"
                               Alt="@pokemon.PokemonName"
@@ -111,9 +111,9 @@
         }
     }
 
-    private void ClickPokemon(string clickedPokemon)
+    private void ClickPokemon(string clickedPokemon, string lastVersion)
     {
-        NavigationManager.NavigateTo($"/{clickedPokemon}");
+        NavigationManager.NavigateTo($"/{clickedPokemon}/{lastVersion}");
     }
 
 }

@@ -24,10 +24,38 @@
            Color="Color.Primary"
            Class="ml-auto"
            OnClick="AddNextPokemon">
-    Add Next Pokemon
+    Add All Pokemon
+</MudButton>
+
+<MudSpacer />
+
+<MudButton Variant="Variant.Filled"
+           Color="Color.Primary"
+           Class="ml-auto"
+           OnClick="AddAllMoves">
+    Add Moves
+</MudButton>
+
+<MudSpacer />
+
+<MudButton Variant="Variant.Filled"
+           Color="Color.Primary"
+           Class="ml-auto"
+           OnClick="AddAllMethods">
+    Add Methods
 </MudButton>
 
 @code {
+    List<PokeMove> allMoves = new List<PokeMove>();
+    List<PokeType> allTypes = new List<PokeType>();
+    List<PokeMethod> allMethods = new List<PokeMethod>();
+    protected override async Task OnInitializedAsync()
+    {
+        allMoves = await PokeServices.GetMoveList();
+        allTypes = await PokeServices.GetTypeList();
+        allMethods = await PokeServices.GetMethodList();
+    }
+
     private async Task AddTypes()
     {
         List<PokeType> TypesBeingAdded = await PokeApi.AddTypeNames();
@@ -36,9 +64,8 @@
 
     private async Task AddTypeEffectivness()
     {
-        List<PokeType> allTypes =  await PokeServices.GetTypeList();
         List<TypeEffectiveness> typeEffectivenesses = await PokeApi.GetEffectiveness(allTypes);
-        foreach(var i in typeEffectivenesses)
+        foreach (var i in typeEffectivenesses)
         {
             await PokeServices.AddTypeEffectivness(i);
         }
@@ -46,10 +73,43 @@
 
     public async Task AddNextPokemon()
     {
-        List<PokeType> allTypes = await PokeServices.GetTypeList();
-        for(int i = 1; i <= 1024; i++)
+        for (int i = 1; i <= 1024; i++)
         {
-            await PokeServices.AddPokemon(await PokeApi.GetPokemonForDatabase(i, allTypes));
+            PokedexPokemon pokedexPokemon = new PokedexPokemon();
+            pokedexPokemon = await PokeApi.GetPokemonForDatabase(i, allTypes);
+            await PokeServices.AddPokemon(pokedexPokemon);
+            await AddPokemonVersion(pokedexPokemon);
+            await AddPokemonMoves(pokedexPokemon);
         }
+    }
+
+    public async Task AddAllMoves()
+    {
+        for (int i = 1; i <= 826; i++)
+        {
+            await PokeServices.AddMove(await PokeApi.GetMoveForDatabase(i, allTypes));
+        }
+    }
+
+    public async Task AddAllMethods()
+    {
+        for (int i = 1; i <= 11; i++)
+        {
+            await PokeServices.AddMethod(await PokeApi.GetMethodsForDatabase(i));
+        }
+    }
+
+    public async Task AddPokemonVersion(PokedexPokemon poke)
+    {
+        string LastVersion = await PokeApi.UpdatedPokemon(poke);
+        poke.LastVersion = LastVersion;
+        await PokeServices.UpdatePokemon(poke);
+    }
+
+    public async Task AddPokemonMoves(PokedexPokemon poke)
+    {
+        List<MovesLearnedByPokemon> movesLearned = await PokeApi.UpdatedMoves(poke, allMoves, allMethods);
+        poke.Moves = movesLearned;
+        await PokeServices.UpdatePokemon(poke);
     }
 }
