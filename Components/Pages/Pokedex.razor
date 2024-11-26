@@ -1,5 +1,5 @@
-﻿@inject PokemonServices PokeService
-@inject NavigationManager NavigationManager
+﻿@inject NavigationManager NavigationManager
+@inject PokedexServices PokePokedex
 @page "/Pokedex"
 
 <MudPaper Class="p-4">
@@ -32,22 +32,21 @@
                 <MudCard>
 
                     <MudCardActions>
-                        <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Secondary" OnClick="@(()=> ClickPokemon(pokemon.PokemonName, pokemon.LastVersion))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Secondary" OnClick="@(()=> ClickPokemon(pokemon.PokemonName))" />
                     </MudCardActions>
-                    <MudImage Src="@pokemon.Sprite"
+
+                    <MudImage Src="@pokemon.Image"
                               Alt="@pokemon.PokemonName"
-                              Fluid="true"/>
+                              Fluid="true" />
+
                     <MudCardContent>
                         <MudText Typo="Typo.h6">@pokemon.PokemonName.CapitalizeName()</MudText>
-                        <MudText Typo="Typo.body2">Dex No: @pokemon.PokedexPokemonId</MudText>
+                        <MudText Typo="Typo.body2"> Dex No: @pokemon.PokemonId </MudText>
                         <MudStack Direction="Row" Spacing="1">
-                            <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@pokemon.DefenceType1.PokeTypeName">
-                                @pokemon.DefenceType1.PokeTypeName
-                            </MudButton>
-                            @if (pokemon.DefenceType2 != null)
+                            @foreach (var type in pokemon.PokemonTypes)
                             {
-                                <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@pokemon.DefenceType2.PokeTypeName">
-                                    @pokemon.DefenceType2.PokeTypeName
+                                <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@type.PokeType.PokeTypeName">
+                                    @type.PokeType.PokeTypeName
                                 </MudButton>
                             }
                         </MudStack>
@@ -56,6 +55,8 @@
             </MudItem>
         }
     </MudGrid>
+
+
 
     <MudDivider Class="my-4" />
 
@@ -70,9 +71,12 @@
 
 </MudPaper>
 
+
+
+
 @code {
 
-    List<PokedexPokemon> ListOfPokemon = new List<PokedexPokemon>();
+    List<Pokemon> ListOfPokemon = new List<Pokemon>();
 
     public bool TypeOrName { get; set; }
     private string searchString1 = "";
@@ -84,20 +88,22 @@
 
     private int CurrentPage { get; set; } = 1;
 
+    public bool isLoading = false;
+
     protected override async Task OnInitializedAsync()
     {
-        ListOfPokemon = await PokeService.GetPokemonList();
+        ListOfPokemon = await PokePokedex.GetPokedexList();
+        isLoading = true;
         StateHasChanged();
     }
 
-    //used to calulate pages
-    private IEnumerable<PokedexPokemon> UnpaginatedFilteredPokemon =>
+    private IEnumerable<Pokemon> UnpaginatedFilteredPokemon =>
     ListOfPokemon
     .Where(pokemon => string.IsNullOrWhiteSpace(searchString1) ||
-    (TypeOrName ? pokemon.DefenceType1.PokeTypeName.Contains(searchString1, StringComparison.OrdinalIgnoreCase) :
+    (TypeOrName ? pokemon.PokemonTypes.Any(type => type.PokeType.PokeTypeName.Contains(searchString1, StringComparison.OrdinalIgnoreCase)) :
     pokemon.PokemonName.Contains(searchString1, StringComparison.OrdinalIgnoreCase)));
 
-    private IEnumerable<PokedexPokemon> FilteredPokemon =>
+    private IEnumerable<Pokemon> FilteredPokemon =>
     UnpaginatedFilteredPokemon
     .Skip((CurrentPage - 1) * pageSize)
     .Take(pageSize);
@@ -111,9 +117,9 @@
         }
     }
 
-    private void ClickPokemon(string clickedPokemon, string lastVersion)
+    private void ClickPokemon(string clickedPokemon)
     {
-        NavigationManager.NavigateTo($"/{clickedPokemon}/{lastVersion}");
+        NavigationManager.NavigateTo($"/{clickedPokemon}");
     }
 
 }

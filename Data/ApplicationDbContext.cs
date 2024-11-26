@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PokemonTeamBuilder.Components.Classes.DatabaseClasses;
+using PokemonTeamBuilder.Components.Classes;
+using PokemonTeamBuilder.Components.Classes.ManyToMany;
 
 namespace PokemonTeamBuilder.Data
 {
@@ -9,52 +10,58 @@ namespace PokemonTeamBuilder.Data
             : base(options)
         { }
 
-        public DbSet<PokeStats> stats { get; set; }
-        public DbSet<PokeType> PokeTypes { get; set; }
+        public DbSet<Pokemon> Pokemons { get; set; }
         public DbSet<CustomPokemon> CustomPokemons { get; set; }
-        public DbSet<PokedexPokemon> PokedexPokemons { get; set; }
-        public DbSet<TypeEffectiveness> EffectivenessTypes { get; set; }
+        public DbSet<PokeAbility> PokeAbilities { get; set; }
+        public DbSet<PokeMethod> PokeMethods { get; set; }
+        public DbSet<PokeMove> PokeMoves { get; set; }
+        public DbSet<PokeStats> PokeStats { get; set; }
+        public DbSet<PokeType> PokeTypes { get; set; }
+        public DbSet<TypeEffectiveness> TypeEffectivenesses { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserTeam> UserTeams { get; set; }
-        public DbSet<PokeMove> PokeMoves { get; set; }
-        public DbSet<PokeMethod> PokeMethods { get; set; }
-        public DbSet<MovesLearnedByPokemon> MovesLearnedByPokemons { get; set; }
+        public DbSet<MPokemonToMoves> MPokemonToMoves { get; set; }
+        public DbSet<MPokemonToAbilities> MPokemonToAbilities { get; set; }
+        public DbSet<MPokemonToTypes> MPokemonToTypes { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=Data/PokemonDB.db");
+            optionsBuilder.UseSqlite("Data Source=Data/PokemonDB.db", o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Pokemon>()
+                .HasOne(p => p.BaseStats)
+                .WithOne()
+                .HasForeignKey<Pokemon>(ps => ps.BaseStatsId);
 
             modelBuilder.Entity<TypeEffectiveness>()
-           .HasKey(te => te.TypeEffectivnessId);
+                .HasKey(te => te.TypeEffectivnessId);
 
             modelBuilder.Entity<TypeEffectiveness>()
                 .HasOne(te => te.AttackType)
-                .WithMany(at => at.AttackEffectiveness)
+                .WithMany(pt => pt.AttackEffectiveness)
                 .HasForeignKey(te => te.AttackTypeId);
 
             modelBuilder.Entity<TypeEffectiveness>()
                 .HasOne(te => te.DefenceType)
-                .WithMany(dt => dt.DefenceEffectiveness)
+                .WithMany(pt => pt.DefenceEffectiveness)
                 .HasForeignKey(te => te.DefenceTypeId);
 
-            modelBuilder.Entity<MovesLearnedByPokemon>()
-            .HasKey(ml => new { ml.PokeMoveId, ml.PokedexPokemonId });
+            modelBuilder.Entity<CustomPokemon>()
+                .HasOne(cp => cp.CustomPokemonEVs)
+                .WithOne()
+                .HasForeignKey<CustomPokemon>(cp => cp.CustomPokemonEVsId);
 
-            // Configure relationships
-            modelBuilder.Entity<MovesLearnedByPokemon>()
-                .HasOne(ml => ml.PokeMove)
-                .WithMany(pm => pm.MovesLearnedByPokemons)
-                .HasForeignKey(ml => ml.PokeMoveId);
-
-            modelBuilder.Entity<MovesLearnedByPokemon>()
-                .HasOne(ml => ml.PokedexPokemon)
-                .WithMany(pp => pp.Moves)
-                .HasForeignKey(ml => ml.PokedexPokemonId);
+            modelBuilder.Entity<CustomPokemon>()
+                .HasOne(cp => cp.CustomPokemonIVs)
+                .WithOne()
+                .HasForeignKey<CustomPokemon>(cp => cp.CustomPokemonIVsId);
         }
+
+
 
     }
 }

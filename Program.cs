@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using PokemonTeamBuilder.Components;
+using PokemonTeamBuilder.Components.Classes;
 using PokemonTeamBuilder.Data;
 using System;
 
@@ -23,8 +25,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<PokemonAuthenticationService>();
 builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<PokemonApiService>();
-builder.Services.AddScoped<PokemonServices>();
+builder.Services.AddScoped<PokemonApiServices>();
+builder.Services.AddScoped<PokedexServices>();
 builder.Services.AddScoped<AuthenticationStateProvider, PokemonAuthenticationService>();
 builder.Services.AddAuthorizationCore();
 

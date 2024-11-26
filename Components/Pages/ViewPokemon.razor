@@ -1,107 +1,201 @@
-﻿@inject PokemonServices PokeService
+﻿@inject PokedexServices PokeService
 @inject NavigationManager NavigationManager
-@inject PokemonApiService PokeApi
 
-@page "/{OnePokemon}/{LastVersion}"
+@page "/{OnePokemon}"
 
-@if (isReady)
+@if (IsLoaded)
 {
-    <h3>Base Pokemon Details</h3>
+    <MudPaper Class="p-4">
+        <MudGrid>
+            <MudItem xs="12" sm="6" md="4" lg="4">
+                <MudCard>
+                    <MudImage Src="@pokemon.Image"
+                              Alt="@pokemon.PokemonName"
+                              Fluid="true"
+                              Class="pokemon-image" />
+                </MudCard>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4" lg="4">
+                <MudCard Class="scaling">
+                    <MudCardContent>
+                        <!-- Row 1-->
+                        <MudGrid Class="mb-4">
+                            <MudItem xs="12" sm="6" md="6" lg="6">
+                                <MudText Typo="Typo.body2">Dex No: @pokemon.PokemonId</MudText>
+                            </MudItem>
+                            <MudItem xs="12" sm="6" md="6" lg="6">
+                                <MudText Typo="Typo.h6">@pokemon.PokemonName.CapitalizeName()</MudText>
+                            </MudItem>
+                        </MudGrid>
+                        <MudGrid Class="mb-4">
+                            <MudItem xs="12" sm="6" md="6" lg="6">
+                                <MudText Typo="Typo.body2">Height: @pokemon.Height</MudText>
+                            </MudItem>
+                            <MudItem xs="12" sm="6" md="6" lg="6">
+                                <MudText Typo="Typo.body2">Weight: @pokemon.Weight</MudText>
+                            </MudItem>
+                        </MudGrid>
+                        <MudGrid Justify="Justify.Center" AlignItems="AlignItems.Center" Style="width: 100%;" Class="mb-4">
+                            @foreach (var type in pokemon.PokemonTypes)
+                            {
+                                <MudItem>
+                                    <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@type.PokeType.PokeTypeName">
+                                        @type.PokeType.PokeTypeName
+                                    </MudButton>
+                                </MudItem>
+                            }
+                        </MudGrid>
+                        <MudGrid Justify="Justify.Center" AlignItems="AlignItems.Center" Style="width: 100%;" Class="mb-4">
+                            @foreach (var ability in pokemon.Abilities)
+                            {
+                                <MudItem>
+                                    <MudTooltip Text="@ability.PokeAbility.AbilityDescription">
+                                        <MudButton Variant="Variant.Filled" Size="Size.Small" Class="ability">
+                                            @ability.PokeAbility.AbilityName
+                                        </MudButton>
+                                    </MudTooltip>
+                                </MudItem>
+                            }
+                        </MudGrid>
+                        <MudGrid Class="mb-4">
+                            <MudItem xs="12" sm="12" md="12" lg="12">
+                                <MudText Typo="Typo.body2">Pokedex: @pokemon.PokedexEntry</MudText>
+                            </MudItem>
+                        </MudGrid>
+                        <MudGrid Class="mb-4">
+                            <MudItem xs="12" sm="6" md="6" lg="6">
+                                <MudText Typo="Typo.h6">x4 Weakness</MudText>
+                                @if (typeChart.X4Weakness.Any())
+                                {
+                                    @foreach (var dmg in typeChart.X4Weakness)
+                                    {
+                                        <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@dmg">
+                                            @dmg
+                                        </MudButton>
+                                    }
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.body2">None</MudText>
+                                }
+                            </MudItem>
+                            <MudItem xs="12" sm="6" md="6" lg="6">
+                                <MudText Typo="Typo.h6">x2 Weakness</MudText>
+                                @if (typeChart.x2Weakness.Any())
+                                {
+                                    @foreach (var dmg in typeChart.x2Weakness)
+                                    {
+                                        <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@dmg">
+                                            @dmg
+                                        </MudButton>
+                                    }
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.body2">None</MudText>
+                                }
+                            </MudItem>
+                            <MudItem xs="12" sm="6" md="6" lg="6">
+                                <MudText Typo="Typo.h6">No Damage</MudText>
+                                @if (typeChart.NoDamage.Any())
+                                {
+                                    @foreach (var dmg in typeChart.NoDamage)
+                                    {
+                                        <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@dmg">
+                                            @dmg
+                                        </MudButton>
+                                    }
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.body2">None</MudText>
+                                }
+                            </MudItem>
+                            <MudItem xs="12" sm="6" md="6" lg="6">
+                                <MudText Typo="Typo.h6">2x Resistance</MudText>
+                                @if (typeChart.X2Resist.Any())
+                                {
+                                    @foreach (var dmg in typeChart.X2Resist)
+                                    {
+                                        <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@dmg">
+                                            @dmg
+                                        </MudButton>
+                                    }
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.body2">None</MudText>
+                                }
+                            </MudItem>
+                            <MudItem xs="12" sm="6" md="6" lg="6">
+                                <MudText Typo="Typo.h6">4x Resistance</MudText>
+                                @if (typeChart.X4Resist.Any())
+                                {
+                                    @foreach (var dmg in typeChart.X4Resist)
+                                    {
+                                        <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@dmg">
+                                            @dmg
+                                        </MudButton>
+                                    }
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.body2">None</MudText>
+                                }
+                            </MudItem>
+                        </MudGrid>
 
-    <p>
-        <strong>Name:</strong> @basePokemon.PokemonName
-    </p>
-    <p>
-        <strong>Pokedex Entry:</strong> @basePokemon.PokedexEntry
-    </p>
-    <p>
-        <strong>Sprite:</strong>
-        <img src="@basePokemon.Sprites[0].Url" alt="Pokemon Sprite" />
-    </p>
-    <p>
-        <strong>Type:</strong> @basePokemon.Types[0].PokeTypeName
-    </p>
-    <p>
-        <strong>Height:</strong> @((basePokemon.Height / 10.0).ToString("0.0")) m <!-- I still wanted the decimal place to be displayed but Blazor doesnt like that -->
-    </p>
-    <p>
-        <strong>Weight:</strong> @((basePokemon.Weight / 10.0).ToString("0.0")) kg <!-- I still wanted the decimal place to be displayed but Blazor doesnt like that -->
-    </p>
-    <p>
-        <strong>Primary Ability:</strong> @basePokemon.Abilities[0].AbilityName - @basePokemon.Abilities[0].AbilityDescription
-    </p>
-    <p>
-        <strong>Attack:</strong> @basePokemon.Stats[0].Attack
-    </p>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Move Name</th>
-                <th>Accuracy</th>
-                <th>Type</th>
-                <th>PP</th>
-                <th>Power</th>
-                <th>Damage Class</th>
-                <th>Flavour Text</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var move in basePokemon.Moves)
-            {
-                <tr>
-                    <td>@move.PokeMoveId</td>
-                    <td>@move.MoveName</td>
-                    <td>@(move.Accuracy.HasValue ? $"{move.Accuracy}%" : "N/A")</td>
-                    <td>@move.MoveType.PokeTypeName</td>
-                    <td>@(move.PP.HasValue ? move.PP : "N/A")</td>
-                    <td>@(move.Power.HasValue ? move.Power : "N/A")</td>
-                    <td>@move.DamgeClass</td>
-                    <td>@move.FlavourText</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+            <MudItem xs="12" sm="4" md="4" lg="4">
+                <MudCard>
+                    <MudCardContent>
+                        <MudText>Card 3 content</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="4" md="4" lg="4">
+                <MudCard>
+                    <MudCardContent>
+                        <MudText>Card 4 content</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="4" md="4" lg="4">
+                <MudCard>
+                    <MudCardContent>
+                        <MudText>Card 5 content</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
 }
-
 
 @code {
     [Parameter]
     public string OnePokemon { get; set; }
-    [Parameter]
-    public string LastVersion { get; set; }
 
-    PokedexPokemon pokedexPokemon = new PokedexPokemon();
-    BasePokemon basePokemon = new BasePokemon();
-    List<PokeType> allTypes = new List<PokeType>();
+    Pokemon pokemon = new Pokemon();
+    TypeChart typeChart = new TypeChart();
 
-    bool isReady = false;
+    public bool IsLoaded = false;
+
+    public int imageIndex = 0;
 
     protected override async Task OnInitializedAsync()
     {
-        pokedexPokemon = await PokeService.GetPokemonByName(OnePokemon);
-        allTypes = await PokeService.GetTypeList();
-        basePokemon = await PokeApi.GetPokemon(OnePokemon, allTypes, LastVersion);
-        basePokemon = await AddToBasePokemon(basePokemon, pokedexPokemon);
-        isReady = true;
-    }
+        pokemon = await PokeService.GetPokemonByName(OnePokemon);
 
-    public async Task<BasePokemon> AddToBasePokemon(BasePokemon basePokemon, PokedexPokemon pokedexPokemon)
-    {
-        basePokemon.BasePokemonId = pokedexPokemon.PokedexPokemonId;
-        basePokemon.PokemonName = pokedexPokemon.PokemonName;
-        basePokemon.Types.Add(pokedexPokemon.DefenceType1);
-
-        if (pokedexPokemon.DefenceType2 != null)
+        if (pokemon != null)
         {
-            basePokemon.Types.Add(pokedexPokemon.DefenceType2);
+            typeChart = await PokeService.GetTypeInfo(pokemon.PokemonTypes.ToList());
+            IsLoaded = true;
+            StateHasChanged();
         }
-        foreach(var move in pokedexPokemon.Moves)
-        {
-            
-        }
-        return basePokemon;
     }
 }
-        

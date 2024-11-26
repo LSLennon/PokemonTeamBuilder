@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PokemonTeamBuilder.Components.Classes.DatabaseClasses;
+using PokemonTeamBuilder.Components.Classes;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
