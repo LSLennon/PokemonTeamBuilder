@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PokemonTeamBuilder.Components.Classes;
-using PokemonTeamBuilder.Components.Classes.ManyToMany;
+using PokemonTeamBuilder.Components.Classes.ManyToMany.BasePokemon;
+using PokemonTeamBuilder.Components.Classes.ManyToMany.FavouriteUser;
+using PokemonTeamBuilder.Components.Classes.ManyToMany.PokemonCustom;
+using PokemonTeamBuilder.Components.Classes.PokemonData;
+using PokemonTeamBuilder.Components.Classes.UsersData;
 
 namespace PokemonTeamBuilder.Data
 {
@@ -23,6 +26,9 @@ namespace PokemonTeamBuilder.Data
         public DbSet<MPokemonToMoves> MPokemonToMoves { get; set; }
         public DbSet<MPokemonToAbilities> MPokemonToAbilities { get; set; }
         public DbSet<MPokemonToTypes> MPokemonToTypes { get; set; }
+        public DbSet<MCustomToMoves> MCustomToMoves { get; set; }
+        public DbSet<PokeNature> PokeNatures { get; set; }
+        public DbSet<UserFavourites> UserFavourites { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -1,4 +1,4 @@
-﻿namespace PokemonTeamBuilder.Components.Classes
+﻿namespace PokemonTeamBuilder.Components.Classes.PokemonData
 {
     public class HeldItem
     {

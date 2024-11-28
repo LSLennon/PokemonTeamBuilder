@@ -1,4 +1,6 @@
-﻿namespace PokemonTeamBuilder.Components.Classes.ManyToMany
+﻿using PokemonTeamBuilder.Components.Classes.PokemonData;
+
+namespace PokemonTeamBuilder.Components.Classes.ManyToMany.BasePokemon
 {
     public class MPokemonToTypes
     {

@@ -123,6 +123,26 @@ namespace PokemonTeamBuilder.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PokeNatures",
+                columns: table => new
+                {
+                    PokeNatureId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    NatureName = table.Column<string>(type: "TEXT", nullable: false),
+                    NatureStatsPokeStatsId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PokeNatures", x => x.PokeNatureId);
+                    table.ForeignKey(
+                        name: "FK_PokeNatures_PokeStats_NatureStatsPokeStatsId",
+                        column: x => x.NatureStatsPokeStatsId,
+                        principalTable: "PokeStats",
+                        principalColumn: "PokeStatsId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TypeEffectivenesses",
                 columns: table => new
                 {
@@ -232,6 +252,7 @@ namespace PokemonTeamBuilder.Migrations
                     BasePokemonId = table.Column<string>(type: "TEXT", nullable: false),
                     CustomPokemonAbilityPokeAbilityId = table.Column<int>(type: "INTEGER", nullable: false),
                     CustomPokemonHeldItemHeldItemId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CustomPokemonNaturePokeNatureId = table.Column<int>(type: "INTEGER", nullable: false),
                     UserTeamId = table.Column<int>(type: "INTEGER", nullable: false),
                     CustomPokemonEVsId = table.Column<int>(type: "INTEGER", nullable: false),
                     CustomPokemonIVsId = table.Column<int>(type: "INTEGER", nullable: false)
@@ -250,6 +271,12 @@ namespace PokemonTeamBuilder.Migrations
                         column: x => x.CustomPokemonAbilityPokeAbilityId,
                         principalTable: "PokeAbilities",
                         principalColumn: "PokeAbilityId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CustomPokemons_PokeNatures_CustomPokemonNaturePokeNatureId",
+                        column: x => x.CustomPokemonNaturePokeNatureId,
+                        principalTable: "PokeNatures",
+                        principalColumn: "PokeNatureId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_CustomPokemons_PokeStats_CustomPokemonEVsId",
@@ -284,6 +311,7 @@ namespace PokemonTeamBuilder.Migrations
                     Power = table.Column<int>(type: "INTEGER", nullable: true),
                     DamgeClass = table.Column<string>(type: "TEXT", nullable: false),
                     FlavourText = table.Column<string>(type: "TEXT", nullable: false),
+                    MachineName = table.Column<string>(type: "TEXT", nullable: true),
                     CustomPokemonId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
@@ -336,6 +364,32 @@ namespace PokemonTeamBuilder.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "MCustomToMoves",
+                columns: table => new
+                {
+                    MCustomToMovesId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    CustomPokemonId = table.Column<int>(type: "INTEGER", nullable: false),
+                    MPokemonToMovesId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MCustomToMoves", x => x.MCustomToMovesId);
+                    table.ForeignKey(
+                        name: "FK_MCustomToMoves_CustomPokemons_CustomPokemonId",
+                        column: x => x.CustomPokemonId,
+                        principalTable: "CustomPokemons",
+                        principalColumn: "CustomPokemonId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MCustomToMoves_MPokemonToMoves_MPokemonToMovesId",
+                        column: x => x.MPokemonToMovesId,
+                        principalTable: "MPokemonToMoves",
+                        principalColumn: "MPokemonToMovesId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_CustomPokemons_CustomPokemonAbilityPokeAbilityId",
                 table: "CustomPokemons",
@@ -359,9 +413,24 @@ namespace PokemonTeamBuilder.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_CustomPokemons_CustomPokemonNaturePokeNatureId",
+                table: "CustomPokemons",
+                column: "CustomPokemonNaturePokeNatureId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CustomPokemons_UserTeamId",
                 table: "CustomPokemons",
                 column: "UserTeamId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MCustomToMoves_CustomPokemonId",
+                table: "MCustomToMoves",
+                column: "CustomPokemonId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MCustomToMoves_MPokemonToMovesId",
+                table: "MCustomToMoves",
+                column: "MPokemonToMovesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MPokemonToAbilities_PokeAbilityId",
@@ -415,6 +484,11 @@ namespace PokemonTeamBuilder.Migrations
                 column: "MoveTypePokeTypeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PokeNatures_NatureStatsPokeStatsId",
+                table: "PokeNatures",
+                column: "NatureStatsPokeStatsId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TypeEffectivenesses_AttackTypeId",
                 table: "TypeEffectivenesses",
                 column: "AttackTypeId");
@@ -434,16 +508,19 @@ namespace PokemonTeamBuilder.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "MPokemonToAbilities");
+                name: "MCustomToMoves");
 
             migrationBuilder.DropTable(
-                name: "MPokemonToMoves");
+                name: "MPokemonToAbilities");
 
             migrationBuilder.DropTable(
                 name: "MPokemonToTypes");
 
             migrationBuilder.DropTable(
                 name: "TypeEffectivenesses");
+
+            migrationBuilder.DropTable(
+                name: "MPokemonToMoves");
 
             migrationBuilder.DropTable(
                 name: "PokeMethods");
@@ -467,10 +544,13 @@ namespace PokemonTeamBuilder.Migrations
                 name: "PokeAbilities");
 
             migrationBuilder.DropTable(
-                name: "PokeStats");
+                name: "PokeNatures");
 
             migrationBuilder.DropTable(
                 name: "UserTeams");
+
+            migrationBuilder.DropTable(
+                name: "PokeStats");
 
             migrationBuilder.DropTable(
                 name: "Users");

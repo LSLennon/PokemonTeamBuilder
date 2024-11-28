@@ -39,9 +39,7 @@
                             @foreach (var type in pokemon.PokemonTypes)
                             {
                                 <MudItem>
-                                    <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@type.PokeType.PokeTypeName">
-                                        @type.PokeType.PokeTypeName
-                                    </MudButton>
+                                    <TypeDisplay Text="@type.PokeType.PokeTypeName" />
                                 </MudItem>
                             }
                         </MudGrid>
@@ -69,9 +67,7 @@
                                 {
                                     @foreach (var dmg in typeChart.X4Weakness)
                                     {
-                                        <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@dmg">
-                                            @dmg
-                                        </MudButton>
+                                        <TypeDisplay Text="@dmg" />
                                     }
                                 }
                                 else
@@ -85,9 +81,7 @@
                                 {
                                     @foreach (var dmg in typeChart.x2Weakness)
                                     {
-                                        <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@dmg">
-                                            @dmg
-                                        </MudButton>
+                                        <TypeDisplay Text="@dmg" />
                                     }
                                 }
                                 else
@@ -101,9 +95,7 @@
                                 {
                                     @foreach (var dmg in typeChart.NoDamage)
                                     {
-                                        <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@dmg">
-                                            @dmg
-                                        </MudButton>
+                                        <TypeDisplay Text="@dmg" />
                                     }
                                 }
                                 else
@@ -117,9 +109,7 @@
                                 {
                                     @foreach (var dmg in typeChart.X2Resist)
                                     {
-                                        <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@dmg">
-                                            @dmg
-                                        </MudButton>
+                                        <TypeDisplay Text="@dmg" />
                                     }
                                 }
                                 else
@@ -133,9 +123,7 @@
                                 {
                                     @foreach (var dmg in typeChart.X4Resist)
                                     {
-                                        <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@dmg">
-                                            @dmg
-                                        </MudButton>
+                                        <TypeDisplay Text="@dmg" />
                                     }
                                 }
                                 else
@@ -149,26 +137,34 @@
                     </MudCardContent>
                 </MudCard>
             </MudItem>
-            <MudItem xs="12" sm="4" md="4" lg="4">
+            <MudItem xs="12" sm="6" md="4" lg="4">
                 <MudCard>
                     <MudCardContent>
-                        <MudText>Card 3 content</MudText>
+                        <MudChart ChartType="ChartType.StackedBar" ChartSeries="@Series" @bind-SelectedIndex="Index" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
                     </MudCardContent>
                 </MudCard>
             </MudItem>
 
-            <MudItem xs="12" sm="4" md="4" lg="4">
+            <MudItem xs="12" sm="12" md="12" lg="12">
                 <MudCard>
                     <MudCardContent>
-                        <MudText>Card 4 content</MudText>
+                        <MoveTable MoveList="LevelUpMoves" TableType="LevelUp" />
                     </MudCardContent>
                 </MudCard>
             </MudItem>
 
-            <MudItem xs="12" sm="4" md="4" lg="4">
+            <MudItem xs="12" sm="12" md="12" lg="12">
                 <MudCard>
                     <MudCardContent>
-                        <MudText>Card 5 content</MudText>
+                        <MoveTable MoveList="MachineMoves" TableType="Machine"/>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="12" md="12" lg="12">
+                <MudCard>
+                    <MudCardContent>
+                        <MoveTable MoveList="EggMoves" TableType="Egg" />
                     </MudCardContent>
                 </MudCard>
             </MudItem>
@@ -178,14 +174,23 @@
 
 @code {
     [Parameter]
-    public string OnePokemon { get; set; }
+    public string OnePokemon { get; set; } = "zubat";
 
     Pokemon pokemon = new Pokemon();
     TypeChart typeChart = new TypeChart();
+    List<MPokemonToMoves> LevelUpMoves = new List<MPokemonToMoves>();
+    List<MPokemonToMoves> MachineMoves = new List<MPokemonToMoves>();
+    List<MPokemonToMoves> EggMoves = new List<MPokemonToMoves>();
 
     public bool IsLoaded = false;
 
     public int imageIndex = 0;
+
+    private int Index = -1;
+
+    public List<ChartSeries> Series = new List<ChartSeries>();
+
+    public string[] XAxisLabels = { "HP", "Atk", "Def", "SpAtk", "SpDef", "Spe" };
 
     protected override async Task OnInitializedAsync()
     {
@@ -194,6 +199,23 @@
         if (pokemon != null)
         {
             typeChart = await PokeService.GetTypeInfo(pokemon.PokemonTypes.ToList());
+            ChartSeries series = new ChartSeries
+                {
+                    Name = "Base Stats",
+                    Data = new double[]
+                        {
+                        pokemon.BaseStats.HP,
+                        pokemon.BaseStats.Attack,
+                        pokemon.BaseStats.Defence,
+                        pokemon.BaseStats.SpAttack,
+                        pokemon.BaseStats.SpDefence,
+                        pokemon.BaseStats.Speed
+                        }
+                };
+            Series.Add(series);
+            LevelUpMoves = pokemon.Moves.Where(p => p.PokeMethod.Name == "level-up").ToList();
+            MachineMoves = pokemon.Moves.Where(p => p.PokeMethod.Name == "machine").ToList();
+            EggMoves = pokemon.Moves.Where(p => p.PokeMethod.Name == "egg").ToList();
             IsLoaded = true;
             StateHasChanged();
         }

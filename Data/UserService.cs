@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PokemonTeamBuilder.Components.Classes;
+using PokemonTeamBuilder.Components.Classes.ManyToMany.FavouriteUser;
+using PokemonTeamBuilder.Components.Classes.PokemonData;
+using PokemonTeamBuilder.Components.Classes.UsersData;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
@@ -98,7 +100,7 @@ namespace PokemonTeamBuilder.Data
             }
 
             string hashedInputPassword = UserService.HashPassword(password, user.Salt);
-            
+
             if (hashedInputPassword == user.PasswordHash)
             {
                 _authStateProvider.SetUser(username);
@@ -135,7 +137,48 @@ namespace PokemonTeamBuilder.Data
             return Convert.ToBase64String(hashed);
         }
 
-        
+        public async Task<List<UserFavourites>> GetUserFavourites(string username)
+        {
+            return await _context.UserFavourites
+                .ToListAsync();
+        }
+
+        public async Task<UserFavourites> AddUserFavourite(Pokemon pokemon, string username)
+        {
+            var user = await GetUserByUsernameAsync(username);
+            if (user != null)
+            {
+                UserFavourites newFav = new UserFavourites
+                {
+                    Pokemon = pokemon,
+                    User = user,
+                    PokemonId = pokemon.PokemonId,
+                    UserId = user.UserId
+                };
+                user.UserFavourites.Add(newFav);
+                await _context.SaveChangesAsync();
+                return newFav;
+            }
+            return null;
+        }
+
+        public async Task<UserFavourites> RemoveUserFavourite(Pokemon pokemon, string username)
+        {
+            var user = await GetUserByUsernameAsync(username);
+            if (user != null)
+            {
+                var removeFav = await _context.UserFavourites.FirstOrDefaultAsync(rf => rf.Pokemon == pokemon);
+                if (removeFav != null)
+                {
+                    user.UserFavourites.Remove(removeFav);
+                    await _context.SaveChangesAsync();
+                    return removeFav;
+                }
+            }
+            return null;
+        }
+
+
     }
 
 }

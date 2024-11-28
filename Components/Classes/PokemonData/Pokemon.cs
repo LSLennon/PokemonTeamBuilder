@@ -1,6 +1,7 @@
-﻿using PokemonTeamBuilder.Components.Classes.ManyToMany;
+﻿using PokemonTeamBuilder.Components.Classes.ManyToMany.BasePokemon;
+using PokemonTeamBuilder.Components.Classes.ManyToMany.FavouriteUser;
 
-namespace PokemonTeamBuilder.Components.Classes
+namespace PokemonTeamBuilder.Components.Classes.PokemonData
 {
     public class Pokemon
     {
@@ -10,7 +11,7 @@ namespace PokemonTeamBuilder.Components.Classes
         public double Height { get; set; }
         public double Weight { get; set; }
         public int BaseStatsId { get; set; }
-        public string Image {  get; set; }
+        public string Image { get; set; }
         public PokeStats BaseStats { get; set; } = new PokeStats();
         public ICollection<MPokemonToAbilities> Abilities { get; set; } = new List<MPokemonToAbilities>();
         public ICollection<MPokemonToMoves> Moves { get; set; } = new List<MPokemonToMoves>();

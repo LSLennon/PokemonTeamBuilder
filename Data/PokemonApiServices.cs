@@ -1,11 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PokeApiNet;
-using PokemonTeamBuilder.Components.Classes;
 using PokemonTeamBuilder.Components.Classes.ManyToMany;
+using PokemonTeamBuilder.Components.Classes.ManyToMany.BasePokemon;
+using PokemonTeamBuilder.Components.Classes.PokemonData;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
+using static MudBlazor.CategoryTypes;
 
 namespace PokemonTeamBuilder.Data
 {
@@ -20,6 +25,11 @@ namespace PokemonTeamBuilder.Data
 
         PokeApiClient pokeClient = new PokeApiClient();
 
+        public int moveCount = 0;
+        public int typeCount = 0;
+        public int abilityCount = 0;
+        public int methodCount = 0;
+
         public async Task<List<PokeType>> GetTypeList()
         {
             return await _context.PokeTypes.ToListAsync();
@@ -30,15 +40,11 @@ namespace PokemonTeamBuilder.Data
             return await _context.PokeMoves.ToListAsync();
         }
 
-        public async Task<List<PokeMethod>> GetMethodList()
-        {
-            return await _context.PokeMethods.ToListAsync();
-        }
-
         public async Task GetPokemonForDatabase(int nationalDexNumber)
         {
             var apiReturn = await pokeClient.GetResourceAsync<PokeApiNet.Pokemon>(nationalDexNumber);
-            var pokemon = new Components.Classes.Pokemon
+            var gameVersion = await GetLastVersionGroup(apiReturn.Abilities.Last().Ability.Name);
+            var pokemon = new Components.Classes.PokemonData.Pokemon
             {
                 PokemonId = apiReturn.Id,
                 PokemonName = apiReturn.Name,
@@ -61,19 +67,25 @@ namespace PokemonTeamBuilder.Data
             }
             foreach (var move in apiReturn.Moves)
             {
-                var moveToAdd = await MoveAsync(move.Move.Name);
-                var link = new MPokemonToMoves
+                foreach (var version in move.VersionGroupDetails)
                 {
-                    Pokemon = pokemon,
-                    PokeMove = moveToAdd,
-                    Level = move.VersionGroupDetails.Last().LevelLearnedAt,
-                    PokeMethod = await MethodAsync(move.VersionGroupDetails.Last().MoveLearnMethod),
-                };
-                pokemon.Moves.Add(link);
+                    if (version.VersionGroup.Name == gameVersion.Name)
+                    {
+                        var moveToAdd = await MoveAsync(move.Move.Name, gameVersion);
+                        var link = new MPokemonToMoves
+                        {
+                            Pokemon = pokemon,
+                            PokeMove = moveToAdd,
+                            Level = version.LevelLearnedAt,
+                            PokeMethod = await MethodAsync(version.MoveLearnMethod),
+                        };
+                        pokemon.Moves.Add(link);
+                    }
+                }
             }
             foreach (var ability in apiReturn.Abilities)
             {
-                var abilityToAdd = await AbilityAsync(ability.Ability.Name);
+                var abilityToAdd = await AbilityAsync(ability.Ability.Name, gameVersion);
                 var link = new MPokemonToAbilities
                 {
                     Pokemon = pokemon,
@@ -81,8 +93,17 @@ namespace PokemonTeamBuilder.Data
                 };
                 pokemon.Abilities.Add(link);
             }
-            _context.Add(pokemon);
+            Console.WriteLine($"Id: {pokemon.PokemonId} - Name: {pokemon.PokemonName}");
+            Console.WriteLine($"Type Count: {typeCount}     Move Count: {moveCount}     Method Count: {methodCount}     Ability Count: {abilityCount}");
+            _context.Pokemons.Add(pokemon);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<VersionGroup> GetLastVersionGroup(string name)
+        {
+            var apiReturn = await pokeClient.GetResourceAsync<Ability>(name);
+            var apiVersion = await pokeClient.GetResourceAsync<VersionGroup>(apiReturn.FlavorTextEntries.Last().VersionGroup.Name);
+            return apiVersion;
         }
 
         public async Task<string> GetImage(int pokemonId)
@@ -109,12 +130,13 @@ namespace PokemonTeamBuilder.Data
                     PokeTypeName = item,
                 };
                 _context.PokeTypes.Add(pokeType);
+                typeCount += 1;
                 await _context.SaveChangesAsync();
                 return pokeType;
             }
         }
 
-        public async Task<PokeMove> MoveAsync(string item)
+        public async Task<PokeMove> MoveAsync(string item, VersionGroup versionGroup)
         {
             var dataCheck = _context.PokeMoves
                 .FirstOrDefault(t => t.MoveName == item);
@@ -138,7 +160,13 @@ namespace PokemonTeamBuilder.Data
                             .Where(ft => ft.Language.Name == "en")
                             .LastOrDefault()?.FlavorText ?? "N/A",
                 };
+                if(apiMove.Machines.FirstOrDefault(ap => ap.VersionGroup.Name == versionGroup.Name) != null)
+                {
+                    var apiMachine = await pokeClient.GetResourceAsync(apiMove.Machines.Select(m => m.Machine));
+                    move.MachineName = apiMachine.FirstOrDefault(mn => mn.VersionGroup.Name == versionGroup.Name).Item.Name;
+                }
                 _context.PokeMoves.Add(move);
+                moveCount += 1;
                 await _context.SaveChangesAsync();
                 return move;
             }
@@ -162,12 +190,13 @@ namespace PokemonTeamBuilder.Data
                         .LastOrDefault()?.Description ?? "N/A",
                 };
                 _context.PokeMethods.Add(pokeMethod);
+                methodCount += 1;
                 await _context.SaveChangesAsync();
                 return pokeMethod;
             }
         }
 
-        public async Task<PokeAbility> AbilityAsync(string item)
+        public async Task<PokeAbility> AbilityAsync(string item, VersionGroup versionGroup)
         {
             var dataCheck = _context.PokeAbilities
                .FirstOrDefault(t => t.AbilityName == item);
@@ -183,9 +212,11 @@ namespace PokemonTeamBuilder.Data
                     AbilityName = apiAbility.Name,
                     AbilityDescription = apiAbility.FlavorTextEntries
                             .Where(ft => ft.Language.Name == "en")
+                            .Where(ft => ft.VersionGroup.Name == versionGroup.Name)
                             .LastOrDefault()?.FlavorText ?? "N/A",
                 };
                 _context.PokeAbilities.Add(pokeAbility);
+                abilityCount += 1;
                 await _context.SaveChangesAsync();
                 return pokeAbility;
             }
@@ -275,6 +306,21 @@ namespace PokemonTeamBuilder.Data
                 }
             }
             await _context.SaveChangesAsync();
+        }
+
+        public async Task GetMoveFlavourText()
+        {
+            List<PokeMove> moves = await GetMoveList();
+            foreach(var move in moves)
+            {
+                var apiMove = await pokeClient.GetResourceAsync<Move>(move.MoveName);
+                move.FlavourText = apiMove.FlavorTextEntries
+                            .Where(ft => ft.Language.Name == "en")
+                            .LastOrDefault()?.FlavorText ?? "N/A";
+                _context.PokeMoves.Update(move);
+                Console.WriteLine($"{move.MoveName} Flavour Text: {move.FlavourText}");
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

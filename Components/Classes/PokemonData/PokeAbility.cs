@@ -1,6 +1,6 @@
-﻿using PokemonTeamBuilder.Components.Classes.ManyToMany;
+﻿using PokemonTeamBuilder.Components.Classes.ManyToMany.BasePokemon;
 
-namespace PokemonTeamBuilder.Components.Classes
+namespace PokemonTeamBuilder.Components.Classes.PokemonData
 {
     public class PokeAbility
     {

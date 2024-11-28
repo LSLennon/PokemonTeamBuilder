@@ -1,0 +1,55 @@
+﻿<MudTable Items="@MoveList" SortLabel="Sort By" Dense="true">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">@TableType</MudText>
+    </ToolBarContent>
+    <HeaderContent>
+        @if (TableType == "LevelUp")
+        {
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<MPokemonToMoves, object>(x=>x.Level)">Level</MudTableSortLabel></MudTh>
+        }
+        else if (TableType == "Machine")
+        {
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<MPokemonToMoves, object>(x=>x.PokeMove.MachineName)">Machine</MudTableSortLabel></MudTh>
+        }
+        else if(TableType == "Egg")
+        {
+            <MudTh>Egg</MudTh>
+        }
+        <MudTh><MudTableSortLabel SortBy="new Func<MPokemonToMoves, object>(x=>x.PokeMove.MoveName)">Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<MPokemonToMoves, object>(x=>x.PokeMove.MoveType.PokeTypeName)">Type</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<MPokemonToMoves, object>(x=>x.PokeMove.DamgeClass)">Catagory</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<MPokemonToMoves, object>(x=>x.PokeMove.Power)">Power</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<MPokemonToMoves, object>(x=>x.PokeMove.PP)">PP</MudTableSortLabel></MudTh>
+        <MudTh>Flavour Text</MudTh>
+
+    </HeaderContent>
+    <RowTemplate>
+        @if (TableType == "LevelUp")
+        {
+            <MudTd DataLabel="Level">@context.Level</MudTd>
+        }
+        else if (TableType == "Machine")
+        {
+            <MudTd DataLabel="Machine">@context.PokeMove.MachineName</MudTd>
+        }
+        else if (TableType == "Egg")
+        {
+            <MudTd DataLabel="Egg"><MudIcon Icon="@Icons.Material.Filled.Egg" Title="Egg"></MudIcon></MudTd>
+        }
+        
+        <MudTd DataLabel="Name">@context.PokeMove.MoveName</MudTd>
+        <MudTd DataLabel="Type"><TypeDisplay Text="@context.PokeMove.MoveType.PokeTypeName" /></MudTd>
+        <MudTd DataLabel="Catagory">@context.PokeMove.DamgeClass</MudTd>
+        <MudTd DataLabel="Power">@context.PokeMove.Power</MudTd>
+        <MudTd DataLabel="PP">@context.PokeMove.PP</MudTd>
+        <MudTd DataLabel="Flavour Text">@context.PokeMove.FlavourText</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    [Parameter]
+    public List<MPokemonToMoves> MoveList { get; set; }
+
+    [Parameter]
+    public string TableType { get; set; }
+}

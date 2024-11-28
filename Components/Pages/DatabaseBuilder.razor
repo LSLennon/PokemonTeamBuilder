@@ -6,7 +6,8 @@
 
 <MudButton Variant="Variant.Filled"
            Color="Color.Primary"
-           Class="ml-auto"
+           Class="ml-auto invisible"
+           Disabled="true"
            OnClick="AddTypeEffectivness">
     Add Type Effectivness
 </MudButton>
@@ -15,9 +16,17 @@
 
 <MudButton Variant="Variant.Filled"
            Color="Color.Primary"
-           Class="ml-auto"
+           Class="ml-auto invisible"
+           Disabled="true"
            OnClick="AddNextPokemon">
     Add All Pokemon
+</MudButton>
+<MudButton Variant="Variant.Filled"
+           Color="Color.Primary"
+           Class="ml-auto invisible"
+           Disabled="true"
+           OnClick="UpdateMoveFlavourText">
+    Update Move Flavour Text
 </MudButton>
 
 @code {
@@ -30,14 +39,19 @@
 
     private async Task AddTypeEffectivness()
     {
-            await PokeServices.GetEffectivenessForDatabase(allTypes);
+        await PokeServices.GetEffectivenessForDatabase(allTypes);
     }
 
     public async Task AddNextPokemon()
     {
-        for (int i = 235; i <= 1024; i++)
+        for (int i = 1; i <= 1024; i++)
         {
             await PokeServices.GetPokemonForDatabase(i);
         }
+    }
+
+    public async Task UpdateMoveFlavourText()
+    {
+        await PokeServices.GetMoveFlavourText();
     }
 }

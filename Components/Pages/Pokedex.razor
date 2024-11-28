@@ -1,5 +1,7 @@
 ﻿@inject NavigationManager NavigationManager
 @inject PokedexServices PokePokedex
+@inject PokemonAuthenticationService AuthService
+@inject UserService UserService
 @page "/Pokedex"
 
 <MudPaper Class="p-4">
@@ -33,6 +35,14 @@
 
                     <MudCardActions>
                         <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Secondary" OnClick="@(()=> ClickPokemon(pokemon.PokemonName))" />
+                        
+                            <FavouriteButtons 
+                                isLoggedIn="@isLoggedIn" 
+                                ListOfFaves="@ListOfFaves" 
+                                pokemon="@pokemon" 
+                                username="@username" 
+                                AddedFave="AddedFave" 
+                                RemovedFave="RemoveFavourite" />
                     </MudCardActions>
 
                     <MudImage Src="@pokemon.Image"
@@ -45,9 +55,7 @@
                         <MudStack Direction="Row" Spacing="1">
                             @foreach (var type in pokemon.PokemonTypes)
                             {
-                                <MudButton Variant="Variant.Filled" Size="Size.Small" Class="@type.PokeType.PokeTypeName">
-                                    @type.PokeType.PokeTypeName
-                                </MudButton>
+                                <TypeDisplay Text="@type.PokeType.PokeTypeName" />
                             }
                         </MudStack>
                     </MudCardContent>
@@ -77,6 +85,7 @@
 @code {
 
     List<Pokemon> ListOfPokemon = new List<Pokemon>();
+    List<UserFavourites> ListOfFaves = new List<UserFavourites>();
 
     public bool TypeOrName { get; set; }
     private string searchString1 = "";
@@ -89,10 +98,21 @@
     private int CurrentPage { get; set; } = 1;
 
     public bool isLoading = false;
+    private bool isLoggedIn;
+    private string username;
 
     protected override async Task OnInitializedAsync()
     {
         ListOfPokemon = await PokePokedex.GetPokedexList();
+
+        var authState = await AuthService.GetAuthenticationStateAsync();
+        isLoggedIn = authState.User.Identity?.IsAuthenticated ?? false;
+        if (isLoggedIn)
+        {
+            username = authState.User.Identity.Name;
+        }
+        ListOfFaves = await UserService.GetUserFavourites(username);
+
         isLoading = true;
         StateHasChanged();
     }
@@ -120,6 +140,18 @@
     private void ClickPokemon(string clickedPokemon)
     {
         NavigationManager.NavigateTo($"/{clickedPokemon}");
+    }
+
+    private void AddedFave(UserFavourites fave)
+    {
+        ListOfFaves.Add(fave);
+        StateHasChanged();
+    }
+
+    private async Task RemoveFavourite(UserFavourites fave)
+    {
+        ListOfFaves.Remove(fave);
+        StateHasChanged();
     }
 
 }

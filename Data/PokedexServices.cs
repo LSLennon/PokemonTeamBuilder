@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PokemonTeamBuilder.Components.Classes;
-using PokemonTeamBuilder.Components.Classes.ManyToMany;
+using PokemonTeamBuilder.Components.Classes.ManyToMany.BasePokemon;
+using PokemonTeamBuilder.Components.Classes.PokemonData;
 
 namespace PokemonTeamBuilder.Data
 {
@@ -21,7 +21,7 @@ namespace PokemonTeamBuilder.Data
                 .ToListAsync();
         }
 
-        
+
         public async Task<Pokemon> GetPokemonByName(string name)
         {
             return await _context.Pokemons
@@ -49,14 +49,22 @@ namespace PokemonTeamBuilder.Data
                 var damages = _context.TypeEffectivenesses.Where(te => te.DefenceType == type.PokeType);
                 foreach (var damage in damages)
                 {
+                    if (damage.AttackType == null)
+                    {
+                        Console.WriteLine("Attack Type was null");
+                        continue; 
+                    }
+
                     var attackTypeName = damage.AttackType.PokeTypeName;
 
                     if (!effectChart.ContainsKey(attackTypeName))
                     {
+                        Console.WriteLine($"Adding a new attacky type name for {attackTypeName}");
                         effectChart[attackTypeName] = damage.DamageCalculation;
                     }
                     else
                     {
+                        Console.WriteLine($"already had attacky type name for {attackTypeName}");
                         effectChart[attackTypeName] *= damage.DamageCalculation;
                     }
                 }
@@ -97,6 +105,6 @@ namespace PokemonTeamBuilder.Data
         {
             return await _context.Pokemons.FirstOrDefaultAsync(p => p.PokemonId == Id);
         }
-        
+
     }
 }

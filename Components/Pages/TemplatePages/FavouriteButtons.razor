@@ -1,0 +1,49 @@
+﻿@inject UserService UserService
+
+@if (isLoggedIn)
+{
+    @if (ListOfFaves.Any(lf => lf.PokemonId == pokemon.PokemonId))
+    {
+        <MudIconButton Icon="@Icons.Material.Filled.Star" Color="Color.Warning" OnClick="async () => await RemoveFavourite(pokemon)"></MudIconButton>
+    }
+    else
+    {
+        <MudIconButton Icon="@Icons.Material.Filled.StarBorder" Color="Color.Warning" OnClick="async () => await AddFavourite(pokemon)"></MudIconButton>
+    }
+}
+
+@code {
+    [Parameter]
+    public bool isLoggedIn { get; set; }
+
+    [Parameter]
+    public List<UserFavourites> ListOfFaves { get; set; }
+
+    [Parameter]
+    public Pokemon pokemon { get; set; }
+
+    [Parameter]
+    public string username { get; set; }
+
+    [Parameter]
+    public EventCallback<UserFavourites> AddedFave { get; set; }
+
+    [Parameter]
+    public EventCallback<UserFavourites> RemovedFave { get; set; }
+
+
+
+
+    private async Task AddFavourite(Pokemon clickedPokemon)
+    {
+        var newFav = await UserService.AddUserFavourite(clickedPokemon, username);
+        await AddedFave.InvokeAsync(newFav);
+    }
+
+    private async Task RemoveFavourite(Pokemon clickedPokemon)
+    {
+        var removeFav = await UserService.RemoveUserFavourite(clickedPokemon, username);
+        await RemovedFave.InvokeAsync(removeFav);
+    }
+
+}

@@ -1,6 +1,6 @@
-﻿using PokemonTeamBuilder.Components.Classes.ManyToMany;
+﻿using PokemonTeamBuilder.Components.Classes.ManyToMany.BasePokemon;
 
-namespace PokemonTeamBuilder.Components.Classes
+namespace PokemonTeamBuilder.Components.Classes.PokemonData
 {
     public class PokeMove
     {
@@ -12,6 +12,7 @@ namespace PokemonTeamBuilder.Components.Classes
         public int? Power { get; set; }
         public string DamgeClass { get; set; }
         public string FlavourText { get; set; }
+        public string? MachineName { get; set; }
         public ICollection<MPokemonToMoves> Moves { get; set; } = new List<MPokemonToMoves>();
     }
 }
