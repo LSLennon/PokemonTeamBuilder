@@ -1,9 +1,10 @@
-﻿using PokemonTeamBuilder.Components.Classes.ManyToMany.BasePokemon;
+﻿using PokemonTeamBuilder.Components.Classes.Decorator;
+using PokemonTeamBuilder.Components.Classes.ManyToMany.BasePokemon;
 using PokemonTeamBuilder.Components.Classes.ManyToMany.FavouriteUser;
 
 namespace PokemonTeamBuilder.Components.Classes.PokemonData
 {
-    public class Pokemon
+    public class Pokemon 
     {
         public int PokemonId { get; set; }
         public string PokemonName { get; set; }

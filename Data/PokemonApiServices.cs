@@ -160,7 +160,7 @@ namespace PokemonTeamBuilder.Data
                             .Where(ft => ft.Language.Name == "en")
                             .LastOrDefault()?.FlavorText ?? "N/A",
                 };
-                if(apiMove.Machines.FirstOrDefault(ap => ap.VersionGroup.Name == versionGroup.Name) != null)
+                if (apiMove.Machines.FirstOrDefault(ap => ap.VersionGroup.Name == versionGroup.Name) != null)
                 {
                     var apiMachine = await pokeClient.GetResourceAsync(apiMove.Machines.Select(m => m.Machine));
                     move.MachineName = apiMachine.FirstOrDefault(mn => mn.VersionGroup.Name == versionGroup.Name).Item.Name;
@@ -311,7 +311,7 @@ namespace PokemonTeamBuilder.Data
         public async Task GetMoveFlavourText()
         {
             List<PokeMove> moves = await GetMoveList();
-            foreach(var move in moves)
+            foreach (var move in moves)
             {
                 var apiMove = await pokeClient.GetResourceAsync<Move>(move.MoveName);
                 move.FlavourText = apiMove.FlavorTextEntries
@@ -322,5 +322,106 @@ namespace PokemonTeamBuilder.Data
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task GetNatures()
+        {
+            var AllNatures = await pokeClient.GetNamedResourcePageAsync<Nature>(25, 0);
+            foreach (var nature in AllNatures.Results)
+            {
+                var natureOne = await pokeClient.GetResourceAsync<Nature>(nature.Name);
+                Console.WriteLine(natureOne.Name);
+                PokeNature pokeNature = new PokeNature
+                {
+                    NatureName = nature.Name,
+                };
+                if (natureOne.IncreasedStat != null)
+                {
+                    Console.WriteLine(natureOne.IncreasedStat.Name);
+                    if (natureOne.IncreasedStat.Name == "attack" || natureOne.DecreasedStat.Name == "attack")
+                    {
+                        if (natureOne.IncreasedStat.Name == "attack")
+                        {
+                            pokeNature.Attack = 1.1;
+                        }
+                        else
+                        {
+                            pokeNature.Attack = 0.9;
+                        }
+                    }
+                    if (natureOne.IncreasedStat.Name == "defence" || natureOne.DecreasedStat.Name == "defence")
+                    {
+                        if (natureOne.IncreasedStat.Name == "defence")
+                        {
+                            pokeNature.Defence = 1.1;
+                        }
+                        else
+                        {
+                            pokeNature.Defence = 0.9;
+                        }
+                    }
+                    if (natureOne.IncreasedStat.Name == "special-attack" || natureOne.DecreasedStat.Name == "special-attack")
+                    {
+                        if (natureOne.IncreasedStat.Name == "special-attack")
+                        {
+                            pokeNature.SpAttack = 1.1;
+                        }
+                        else
+                        {
+                            pokeNature.SpAttack = 0.9;
+                        }
+                    }
+                    if (natureOne.IncreasedStat.Name == "apecial-defence" || natureOne.DecreasedStat.Name == "special-defence")
+                    {
+                        if (natureOne.IncreasedStat.Name == "special-defence")
+                        {
+                            pokeNature.SpDefence = 1.1;
+                        }
+                        else
+                        {
+                            pokeNature.SpDefence = 0.9;
+                        }
+                    }
+                    if (natureOne.IncreasedStat.Name == "speed" || natureOne.DecreasedStat.Name == "speed")
+                    {
+                        if (natureOne.IncreasedStat.Name == "speed")
+                        {
+                            pokeNature.Speed = 1.1;
+                        }
+                        else
+                        {
+                            pokeNature.Speed = 0.9;
+                        }
+                    }
+                }
+                await _context.PokeNatures.AddAsync(pokeNature);
+                Console.WriteLine($"{pokeNature.NatureName} has been added");
+                await _context.SaveChangesAsync();
+
+            }
+        }
+
+        public async Task GetHeldItems()
+        {
+            int[] itemCategoryIds = new int[]
+        {
+            3, 4, 5, 6, 7, //Berries
+            12, 13, 14, 15, 16, 17, 18, 19, 42, 44, 45, 46 //Various Held Items
+        };
+            foreach(int i in itemCategoryIds)
+            {
+                var group = await pokeClient.GetResourceAsync<ItemCategory>(i);
+                foreach(var item in group.Items)
+                {
+                    HeldItem heldItem = new HeldItem
+                    {
+                        HeldItemName = item.Name,
+                        Description = "N/A Bug in api"
+                    };
+                    await _context.HeldItems.AddAsync(heldItem);
+                    Console.WriteLine($"{heldItem.HeldItemName}");
+                    await _context.SaveChangesAsync();
+                }
+            }
+        } //Not Usable due to bug in API
     }
 }

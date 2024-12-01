@@ -4,11 +4,15 @@
 {
     @if (ListOfFaves.Any(lf => lf.PokemonId == pokemon.PokemonId))
     {
+        <MudTooltip Text="Remove From Favourites">
         <MudIconButton Icon="@Icons.Material.Filled.Star" Color="Color.Warning" OnClick="async () => await RemoveFavourite(pokemon)"></MudIconButton>
+        </MudTooltip>
     }
     else
     {
+        <MudTooltip Text="Add To Favourites">
         <MudIconButton Icon="@Icons.Material.Filled.StarBorder" Color="Color.Warning" OnClick="async () => await AddFavourite(pokemon)"></MudIconButton>
+        </MudTooltip>
     }
 }
 
@@ -17,33 +21,29 @@
     public bool isLoggedIn { get; set; }
 
     [Parameter]
-    public List<UserFavourites> ListOfFaves { get; set; }
-
-    [Parameter]
     public Pokemon pokemon { get; set; }
 
     [Parameter]
     public string username { get; set; }
 
-    [Parameter]
-    public EventCallback<UserFavourites> AddedFave { get; set; }
+    List<UserFavourites> ListOfFaves = new List<UserFavourites>();
 
-    [Parameter]
-    public EventCallback<UserFavourites> RemovedFave { get; set; }
-
-
-
+    protected override async Task OnInitializedAsync()
+    {
+        ListOfFaves = await UserService.GetUserFavourites(username);
+    }
 
     private async Task AddFavourite(Pokemon clickedPokemon)
     {
-        var newFav = await UserService.AddUserFavourite(clickedPokemon, username);
-        await AddedFave.InvokeAsync(newFav);
+        var fave = await UserService.AddUserFavourite(clickedPokemon, username);
+        ListOfFaves.Add(fave);
+        StateHasChanged();
     }
 
     private async Task RemoveFavourite(Pokemon clickedPokemon)
     {
-        var removeFav = await UserService.RemoveUserFavourite(clickedPokemon, username);
-        await RemovedFave.InvokeAsync(removeFav);
+        var fave = await UserService.RemoveUserFavourite(clickedPokemon, username);
+        ListOfFaves.Remove(fave);
+        StateHasChanged();
     }
-
 }

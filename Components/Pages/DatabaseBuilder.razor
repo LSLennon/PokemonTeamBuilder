@@ -16,6 +16,14 @@
 
 <MudButton Variant="Variant.Filled"
            Color="Color.Primary"
+           OnClick="AddNatures">
+    Add Natures
+</MudButton>
+
+<MudSpacer />
+
+<MudButton Variant="Variant.Filled"
+           Color="Color.Primary"
            Class="ml-auto invisible"
            Disabled="true"
            OnClick="AddNextPokemon">
@@ -44,14 +52,22 @@
 
     public async Task AddNextPokemon()
     {
-        for (int i = 1; i <= 1024; i++)
+        //add from 1 - 34
+        for (int i = 1; i <= 34; i++)
         {
             await PokeServices.GetPokemonForDatabase(i);
         }
+        await AddTypeEffectivness();
+
     }
 
     public async Task UpdateMoveFlavourText()
     {
         await PokeServices.GetMoveFlavourText();
+    }
+
+    public async Task AddNatures()
+    {
+        await PokeServices.GetNatures();
     }
 }

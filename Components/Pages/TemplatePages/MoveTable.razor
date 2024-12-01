@@ -1,17 +1,24 @@
-﻿<MudTable Items="@MoveList" SortLabel="Sort By" Dense="true">
+﻿@inject ISnackbar Snackbar
+
+<MudTable Items="@MoveList"
+          T="MPokemonToMoves"
+          OnRowClick="OnRowClick"
+          SortLabel="Sort By"
+          Dense="true"
+          >
     <ToolBarContent>
         <MudText Typo="Typo.h6">@TableType</MudText>
     </ToolBarContent>
     <HeaderContent>
-        @if (TableType == "LevelUp")
+        @if (TableType == "Level-Up Moves")
         {
             <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<MPokemonToMoves, object>(x=>x.Level)">Level</MudTableSortLabel></MudTh>
         }
-        else if (TableType == "Machine")
+        else if (TableType == "Machine Moves")
         {
             <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<MPokemonToMoves, object>(x=>x.PokeMove.MachineName)">Machine</MudTableSortLabel></MudTh>
         }
-        else if(TableType == "Egg")
+        else if (TableType == "Egg Moves")
         {
             <MudTh>Egg</MudTh>
         }
@@ -23,20 +30,20 @@
         <MudTh>Flavour Text</MudTh>
 
     </HeaderContent>
-    <RowTemplate>
-        @if (TableType == "LevelUp")
+    <RowTemplate >
+        @if (TableType == "Level-Up Moves")
         {
             <MudTd DataLabel="Level">@context.Level</MudTd>
         }
-        else if (TableType == "Machine")
+        else if (TableType == "Machine Moves")
         {
-            <MudTd DataLabel="Machine">@context.PokeMove.MachineName</MudTd>
+            <MudTd DataLabel="Machine Moves">@context.PokeMove.MachineName</MudTd>
         }
-        else if (TableType == "Egg")
+        else if (TableType == "Egg Moves")
         {
             <MudTd DataLabel="Egg"><MudIcon Icon="@Icons.Material.Filled.Egg" Title="Egg"></MudIcon></MudTd>
         }
-        
+
         <MudTd DataLabel="Name">@context.PokeMove.MoveName</MudTd>
         <MudTd DataLabel="Type"><TypeDisplay Text="@context.PokeMove.MoveType.PokeTypeName" /></MudTd>
         <MudTd DataLabel="Catagory">@context.PokeMove.DamgeClass</MudTd>
@@ -52,4 +59,16 @@
 
     [Parameter]
     public string TableType { get; set; }
+
+    [Parameter]
+    public bool IsCustom { get; set; }
+
+    [Parameter]
+    public EventCallback<MPokemonToMoves> OnMoveAdded { get; set; }
+
+    private async void OnRowClick(TableRowClickEventArgs<MPokemonToMoves> args)
+    {
+        await OnMoveAdded.InvokeAsync(args.Item);
+    }
+}
 }

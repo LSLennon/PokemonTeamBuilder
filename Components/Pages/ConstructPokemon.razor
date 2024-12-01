@@ -1,0 +1,351 @@
+﻿@inject PokedexServices PokeService
+@inject PokemonAuthenticationService AuthService
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@using System.ComponentModel;
+
+@page "/ConstructPokemon/{OnePokemon}"
+<PaperWrapper>
+    <MudItem xs="3">
+        <MudImage Src="@pokemon.Image"
+                  Alt="@pokemon.PokemonName"
+                  Fluid="true"
+                  Class="pokemon-image" />
+    </MudItem>
+    <MudItem xs="2">
+
+        <MudItem>
+            @if (!string.IsNullOrEmpty(Custom?.CustomPokemonNickname))
+            {
+                <MudText>
+                    Nickname: @Custom.CustomPokemonNickname
+                </MudText>
+            }
+            else
+            {
+                <MudText>
+                    Name: @pokemon.PokemonName
+                </MudText>
+            }
+
+        </MudItem>
+        <MudItem>
+            <MudText>Level: @CustomPoke.CustomPokemonLevel</MudText>
+        </MudItem>
+        <MudItem>
+            <MudText>
+                Ability:
+                @if (!string.IsNullOrEmpty(Custom.CustomPokemonAbility?.AbilityName))
+                {
+                    @Custom.CustomPokemonAbility.AbilityName
+                }
+            </MudText>
+        </MudItem>
+        <MudItem>
+            <MudText>
+                Nature:
+                @if (!string.IsNullOrEmpty(CustomPoke.CustomPokemonNature?.NatureName))
+                {
+                    @CustomPoke.CustomPokemonNature.NatureName
+                }
+            </MudText>
+        </MudItem>
+        <MudItem>
+            <MudText>
+                Held Item:
+                @if (!string.IsNullOrEmpty(Custom.CustomPokemonHeldItem?.HeldItemName))
+                {
+                    @Custom.CustomPokemonHeldItem.HeldItemName
+                }
+            </MudText>
+        </MudItem>
+    </MudItem>
+    <MudItem xs="3" Class="">
+        @foreach (var move in CustomMoves)
+        {
+            <MoveTemplate Move="move" />
+        }
+    </MudItem>
+    <MudItem xs="3">
+        <MudCard>
+            <MudCardContent>
+                <MudChart ChartType="ChartType.StackedBar" ChartSeries="@StatTotal" @bind-SelectedIndex="Index" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</PaperWrapper>
+
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+    <MudTabPanel Text="Basic Info">
+        <PaperWrapper>
+            <MudItem xs="12" sm="3">
+                <MudItem xs="12">
+                    <PaperWrapper>
+                        <MudTextField T="string"
+                                      Label="Nickname"
+                                      @bind-Value="Custom.CustomPokemonNickname" />
+                    </PaperWrapper>
+                </MudItem>
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <PaperWrapper>
+                    <MudText Typo="Typo.h6">Abilities</MudText>
+                    <MudToggleGroup SelectionMode="SelectionMode.SingleSelection"
+                                    @bind-Value="Custom.CustomPokemonAbility"
+                                    Color="Color.Tertiary"
+                                    CheckMark>
+                        @foreach (var ability in pokemon.Abilities)
+                        {
+                            <MudTooltip Text="@ability.PokeAbility.AbilityDescription">
+                                <MudToggleItem Value="ability.PokeAbility" Text="@ability.PokeAbility.AbilityName" />
+                            </MudTooltip>
+                        }
+                    </MudToggleGroup>
+                </PaperWrapper>
+            </MudItem>
+            <MudItem xs="12" sm="3">
+                <PaperWrapper>
+                    <MudNumericField Label="Level"
+                                     @bind-Value="CustomPoke.CustomPokemonLevel"
+                                     Min="1"
+                                     Max="100">
+                    </MudNumericField>
+                </PaperWrapper>
+            </MudItem>
+
+            <MudItem xs="12" sm="5">
+                <PaperWrapper>
+                    <MudSelect Label="Choose Nature"
+                               OpenIcon="@Icons.Material.Filled.ArrowUpward"
+                               @bind-Value="@CustomPoke.CustomPokemonNature">
+                        @foreach (var item in Natures)
+                        {
+                            <MudSelectItem Value="@item">@item.NatureName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </PaperWrapper>
+            </MudItem>
+            <MudItem xs="12" sm="5">
+                <PaperWrapper>
+                    <MudSelect Label="Choose Held Item"
+                               OpenIcon="@Icons.Material.Filled.ArrowUpward"
+                               @bind-Value="@Custom.CustomPokemonHeldItem">
+                        @foreach (var item in Items)
+                        {
+                            <MudSelectItem Value="@item">@item.HeldItemName - @item.Description</MudSelectItem>
+                        }
+                    </MudSelect>
+                </PaperWrapper>
+            </MudItem>
+        </PaperWrapper>
+    </MudTabPanel>
+    <MudTabPanel Text="Moves">
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+            @foreach (var MoveList in AllMoveLists)
+            {
+                <MudTabPanel Text="@MoveList.Key">
+                    <MoveTable IsCustom="true" MoveList="@MoveList.Value" TableType="@MoveList.Key" OnMoveAdded="OnMoveAdded"></MoveTable>
+                </MudTabPanel>
+            }
+        </MudTabs>
+    </MudTabPanel>
+    <MudTabPanel Text="EVs, IVs">
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+            <MudTabPanel Text="Evs">
+                <MudNumericField @bind-Value="EVStats.HP"
+                                 Label="HP"
+                                 Variant="Variant.Outlined"
+                                 Max="252"
+                                 Min="0"
+                                 Immediate="true" />
+
+                <MudNumericField @bind-Value="EVStats.Attack"
+                                 Label="Attack"
+                                 Variant="Variant.Outlined"
+                                 Max="252"
+                                 Min="0"
+                                 Immediate="true" />
+
+                <MudNumericField @bind-Value="EVStats.Defence"
+                                 Label="Defence"
+                                 Variant="Variant.Outlined"
+                                 Max="252"
+                                 Min="0"
+                                 Immediate="true" />
+
+                <MudNumericField @bind-Value="EVStats.SpAttack"
+                                 Label="Sp Attack"
+                                 Variant="Variant.Outlined"
+                                 Max="252"
+                                 Min="0"
+                                 Immediate="true" />
+
+                <MudNumericField @bind-Value="EVStats.SpDefence"
+                                 Label="Sp Defence"
+                                 Variant="Variant.Outlined"
+                                 Max="252"
+                                 Min="0"
+                                 Immediate="true" />
+
+                <MudNumericField @bind-Value="EVStats.Speed"
+                                 Label="Speed"
+                                 Variant="Variant.Outlined"
+                                 Max="252"
+                                 Min="0"
+                                 Immediate="true" />
+
+                <MudText Typo="Typo.subtitle1" Color="Color.Primary">Total: @EVStats.StatTotal / 508</MudText>
+
+
+            </MudTabPanel>
+        </MudTabs>
+    </MudTabPanel>
+</MudTabs>
+@code {
+    //Passed in pokmeon to load indivdual data
+    [Parameter]
+    public string OnePokemon { get; set; }
+
+    //classes for display
+    Pokemon pokemon = new Pokemon();
+
+    //Loading and User Data
+    private bool IsLoaded = false;
+    private bool isLoggedIn;
+    private string username;
+
+    //Nature
+    List<PokeNature> Natures = new List<PokeNature>();
+
+    //Held Item
+    List<HeldItem> Items = new List<HeldItem>();
+
+    //Stat Display
+    public List<ChartSeries> StatTotal = new List<ChartSeries>();
+    public DecoratorCustomStats EVStats;
+    public DecoratorCustomStats IVStats;
+    public DecoratorCustomPokemonNotify CustomPoke;
+
+
+    public string[] XAxisLabels = { "HP", "Atk", "Def", "SpAtk", "SpDef", "Spe" };
+    private int Index = -1;
+
+    //CustomPokemon Features
+    CustomPokemon Custom = new CustomPokemon();
+
+    //Moves
+    List<MPokemonToMoves> CustomMoves = new List<MPokemonToMoves>();
+
+    Dictionary<string, List<MPokemonToMoves>> AllMoveLists = new Dictionary<string, List<MPokemonToMoves>>
+    {
+        {"Level-Up Moves", new List<MPokemonToMoves>()},
+        {"Machine Moves", new List<MPokemonToMoves>()},
+        {"Egg Moves", new List<MPokemonToMoves>()}
+    };
+
+    private void OnMoveAdded(MPokemonToMoves move)
+    {
+        Console.WriteLine(move.PokeMove.MoveName);
+        if (CustomMoves.Contains(move))
+        {
+            CustomMoves.Remove(move);
+            Snackbar.Add("Move has been removed.");
+        }
+        else if (CustomMoves.Count() >= 4)
+        {
+            Snackbar.Add("Only 4 moves allowed.");
+        }
+        else
+        {
+            CustomMoves.Add(move);
+            Snackbar.Add("Move has been added.");
+        }
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        pokemon = await PokeService.GetPokemonByName(OnePokemon);
+
+        if (pokemon != null)
+        {
+            await LoadLists();
+            await LoggedIn();
+            IsLoaded = true;
+            StateHasChanged();
+        }
+    }
+
+    public async Task LoadLists()
+    {
+        CustomPoke = new DecoratorCustomPokemonNotify(Custom);
+        Natures = await PokeService.GetNatureList();
+        CustomPoke.CustomPokemonNature = Natures.First();
+        CustomPoke.OnAtributeChanged += RefreshChart;
+
+        LoadMoves();
+        Custom.CustomPokemonEVs = new PokeStats();
+        EVStats = new DecoratorCustomStats(Custom.CustomPokemonEVs);
+        EVStats.OnStatChanged += RefreshChart;
+
+        Custom.CustomPokemonIVs = new PokeStats();
+        IVStats = new DecoratorCustomStats(Custom.CustomPokemonIVs);
+        IVStats.OnStatChanged += RefreshChart;
+
+
+        Natures = await PokeService.GetNatureList();
+        Custom.CustomPokemonNature = Natures.First();
+
+        Items = await PokeService.GetHeldItemList();
+
+        
+        RefreshChart();
+    }
+
+
+    private void RefreshChart()
+    {
+        Console.WriteLine("here");
+        StatTotal.Clear();
+
+        DecoratorCalculateStats calculateStats = new DecoratorCalculateStats(pokemon.BaseStats, EVStats, IVStats, CustomPoke.CustomPokemonLevel, CustomPoke.CustomPokemonNature);
+
+        ChartSeries series = new ChartSeries
+            {
+                Name = "Stat Totals",
+                Data = calculateStats.StatsArray().Select(x => Convert.ToDouble(x)).ToArray()
+            };
+        StatTotal.Add(series);
+
+    }
+
+    public void LoadMoves()
+    {
+        foreach (var move in pokemon.Moves)
+        {
+            if (move.PokeMethod.Name == "level-up")
+            {
+                AllMoveLists["Level-Up Moves"].Add(move);
+            }
+            else if (move.PokeMethod.Name == "machine")
+            {
+                AllMoveLists["Machine Moves"].Add(move);
+            }
+            else if (move.PokeMethod.Name == "egg")
+            {
+                AllMoveLists["Egg Moves"].Add(move);
+            }
+        }
+    }
+
+    public async Task LoggedIn()
+    {
+        var authState = await AuthService.GetAuthenticationStateAsync();
+        isLoggedIn = authState.User.Identity?.IsAuthenticated ?? false;
+        if (isLoggedIn)
+        {
+            username = authState.User.Identity.Name;
+        }
+    }
+}

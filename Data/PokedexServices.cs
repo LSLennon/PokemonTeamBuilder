@@ -21,6 +21,16 @@ namespace PokemonTeamBuilder.Data
                 .ToListAsync();
         }
 
+        public async Task<List<PokeNature>> GetNatureList()
+        {
+            return await _context.PokeNatures.ToListAsync();
+        }
+
+        public async Task<List<HeldItem>> GetHeldItemList()
+        {
+            return await _context.HeldItems.ToListAsync();
+        }
+
 
         public async Task<Pokemon> GetPokemonByName(string name)
         {
@@ -51,7 +61,6 @@ namespace PokemonTeamBuilder.Data
                 {
                     if (damage.AttackType == null)
                     {
-                        Console.WriteLine("Attack Type was null");
                         continue; 
                     }
 
@@ -59,12 +68,10 @@ namespace PokemonTeamBuilder.Data
 
                     if (!effectChart.ContainsKey(attackTypeName))
                     {
-                        Console.WriteLine($"Adding a new attacky type name for {attackTypeName}");
                         effectChart[attackTypeName] = damage.DamageCalculation;
                     }
                     else
                     {
-                        Console.WriteLine($"already had attacky type name for {attackTypeName}");
                         effectChart[attackTypeName] *= damage.DamageCalculation;
                     }
                 }

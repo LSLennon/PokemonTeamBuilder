@@ -11,7 +11,7 @@ namespace PokemonTeamBuilder.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "HeldItem",
+                name: "HeldItems",
                 columns: table => new
                 {
                     HeldItemId = table.Column<int>(type: "INTEGER", nullable: false)
@@ -21,7 +21,7 @@ namespace PokemonTeamBuilder.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_HeldItem", x => x.HeldItemId);
+                    table.PrimaryKey("PK_HeldItems", x => x.HeldItemId);
                 });
 
             migrationBuilder.CreateTable(
@@ -50,6 +50,24 @@ namespace PokemonTeamBuilder.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PokeMethods", x => x.PokeMethodId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PokeNatures",
+                columns: table => new
+                {
+                    PokeNatureId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    NatureName = table.Column<string>(type: "TEXT", nullable: false),
+                    Attack = table.Column<double>(type: "REAL", nullable: false),
+                    Defence = table.Column<double>(type: "REAL", nullable: false),
+                    SpAttack = table.Column<double>(type: "REAL", nullable: false),
+                    SpDefence = table.Column<double>(type: "REAL", nullable: false),
+                    Speed = table.Column<double>(type: "REAL", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PokeNatures", x => x.PokeNatureId);
                 });
 
             migrationBuilder.CreateTable(
@@ -123,22 +141,28 @@ namespace PokemonTeamBuilder.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PokeNatures",
+                name: "PokeMoves",
                 columns: table => new
                 {
-                    PokeNatureId = table.Column<int>(type: "INTEGER", nullable: false)
+                    PokeMoveId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    NatureName = table.Column<string>(type: "TEXT", nullable: false),
-                    NatureStatsPokeStatsId = table.Column<int>(type: "INTEGER", nullable: false)
+                    MoveName = table.Column<string>(type: "TEXT", nullable: false),
+                    Accuracy = table.Column<int>(type: "INTEGER", nullable: true),
+                    MoveTypePokeTypeId = table.Column<int>(type: "INTEGER", nullable: false),
+                    PP = table.Column<int>(type: "INTEGER", nullable: true),
+                    Power = table.Column<int>(type: "INTEGER", nullable: true),
+                    DamgeClass = table.Column<string>(type: "TEXT", nullable: false),
+                    FlavourText = table.Column<string>(type: "TEXT", nullable: false),
+                    MachineName = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PokeNatures", x => x.PokeNatureId);
+                    table.PrimaryKey("PK_PokeMoves", x => x.PokeMoveId);
                     table.ForeignKey(
-                        name: "FK_PokeNatures_PokeStats_NatureStatsPokeStatsId",
-                        column: x => x.NatureStatsPokeStatsId,
-                        principalTable: "PokeStats",
-                        principalColumn: "PokeStatsId",
+                        name: "FK_PokeMoves_PokeTypes_MoveTypePokeTypeId",
+                        column: x => x.MoveTypePokeTypeId,
+                        principalTable: "PokeTypes",
+                        principalColumn: "PokeTypeId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -242,91 +266,28 @@ namespace PokemonTeamBuilder.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CustomPokemons",
+                name: "UserFavourites",
                 columns: table => new
                 {
-                    CustomPokemonId = table.Column<int>(type: "INTEGER", nullable: false)
+                    UserFavouritesId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    CustomPokemonNickname = table.Column<string>(type: "TEXT", nullable: false),
-                    CustomPokemonLevel = table.Column<int>(type: "INTEGER", nullable: false),
-                    BasePokemonId = table.Column<string>(type: "TEXT", nullable: false),
-                    CustomPokemonAbilityPokeAbilityId = table.Column<int>(type: "INTEGER", nullable: false),
-                    CustomPokemonHeldItemHeldItemId = table.Column<int>(type: "INTEGER", nullable: false),
-                    CustomPokemonNaturePokeNatureId = table.Column<int>(type: "INTEGER", nullable: false),
-                    UserTeamId = table.Column<int>(type: "INTEGER", nullable: false),
-                    CustomPokemonEVsId = table.Column<int>(type: "INTEGER", nullable: false),
-                    CustomPokemonIVsId = table.Column<int>(type: "INTEGER", nullable: false)
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
+                    PokemonId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CustomPokemons", x => x.CustomPokemonId);
+                    table.PrimaryKey("PK_UserFavourites", x => x.UserFavouritesId);
                     table.ForeignKey(
-                        name: "FK_CustomPokemons_HeldItem_CustomPokemonHeldItemHeldItemId",
-                        column: x => x.CustomPokemonHeldItemHeldItemId,
-                        principalTable: "HeldItem",
-                        principalColumn: "HeldItemId",
+                        name: "FK_UserFavourites_Pokemons_PokemonId",
+                        column: x => x.PokemonId,
+                        principalTable: "Pokemons",
+                        principalColumn: "PokemonId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CustomPokemons_PokeAbilities_CustomPokemonAbilityPokeAbilityId",
-                        column: x => x.CustomPokemonAbilityPokeAbilityId,
-                        principalTable: "PokeAbilities",
-                        principalColumn: "PokeAbilityId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CustomPokemons_PokeNatures_CustomPokemonNaturePokeNatureId",
-                        column: x => x.CustomPokemonNaturePokeNatureId,
-                        principalTable: "PokeNatures",
-                        principalColumn: "PokeNatureId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CustomPokemons_PokeStats_CustomPokemonEVsId",
-                        column: x => x.CustomPokemonEVsId,
-                        principalTable: "PokeStats",
-                        principalColumn: "PokeStatsId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CustomPokemons_PokeStats_CustomPokemonIVsId",
-                        column: x => x.CustomPokemonIVsId,
-                        principalTable: "PokeStats",
-                        principalColumn: "PokeStatsId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CustomPokemons_UserTeams_UserTeamId",
-                        column: x => x.UserTeamId,
-                        principalTable: "UserTeams",
-                        principalColumn: "UserTeamId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PokeMoves",
-                columns: table => new
-                {
-                    PokeMoveId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    MoveName = table.Column<string>(type: "TEXT", nullable: false),
-                    Accuracy = table.Column<int>(type: "INTEGER", nullable: true),
-                    MoveTypePokeTypeId = table.Column<int>(type: "INTEGER", nullable: false),
-                    PP = table.Column<int>(type: "INTEGER", nullable: true),
-                    Power = table.Column<int>(type: "INTEGER", nullable: true),
-                    DamgeClass = table.Column<string>(type: "TEXT", nullable: false),
-                    FlavourText = table.Column<string>(type: "TEXT", nullable: false),
-                    MachineName = table.Column<string>(type: "TEXT", nullable: true),
-                    CustomPokemonId = table.Column<int>(type: "INTEGER", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PokeMoves", x => x.PokeMoveId);
-                    table.ForeignKey(
-                        name: "FK_PokeMoves_CustomPokemons_CustomPokemonId",
-                        column: x => x.CustomPokemonId,
-                        principalTable: "CustomPokemons",
-                        principalColumn: "CustomPokemonId");
-                    table.ForeignKey(
-                        name: "FK_PokeMoves_PokeTypes_MoveTypePokeTypeId",
-                        column: x => x.MoveTypePokeTypeId,
-                        principalTable: "PokeTypes",
-                        principalColumn: "PokeTypeId",
+                        name: "FK_UserFavourites_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -361,6 +322,69 @@ namespace PokemonTeamBuilder.Migrations
                         column: x => x.PokemonId,
                         principalTable: "Pokemons",
                         principalColumn: "PokemonId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CustomPokemons",
+                columns: table => new
+                {
+                    CustomPokemonId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    CustomPokemonNickname = table.Column<string>(type: "TEXT", nullable: false),
+                    CustomPokemonLevel = table.Column<int>(type: "INTEGER", nullable: false),
+                    CustomPokemonAbilityPokeAbilityId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CustomPokemonHeldItemHeldItemId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CustomPokemonNaturePokeNatureId = table.Column<int>(type: "INTEGER", nullable: false),
+                    PokemonId = table.Column<int>(type: "INTEGER", nullable: false),
+                    UserTeamId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CustomPokemonEVsId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CustomPokemonIVsId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomPokemons", x => x.CustomPokemonId);
+                    table.ForeignKey(
+                        name: "FK_CustomPokemons_HeldItems_CustomPokemonHeldItemHeldItemId",
+                        column: x => x.CustomPokemonHeldItemHeldItemId,
+                        principalTable: "HeldItems",
+                        principalColumn: "HeldItemId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CustomPokemons_PokeAbilities_CustomPokemonAbilityPokeAbilityId",
+                        column: x => x.CustomPokemonAbilityPokeAbilityId,
+                        principalTable: "PokeAbilities",
+                        principalColumn: "PokeAbilityId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CustomPokemons_PokeNatures_CustomPokemonNaturePokeNatureId",
+                        column: x => x.CustomPokemonNaturePokeNatureId,
+                        principalTable: "PokeNatures",
+                        principalColumn: "PokeNatureId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CustomPokemons_PokeStats_CustomPokemonEVsId",
+                        column: x => x.CustomPokemonEVsId,
+                        principalTable: "PokeStats",
+                        principalColumn: "PokeStatsId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CustomPokemons_PokeStats_CustomPokemonIVsId",
+                        column: x => x.CustomPokemonIVsId,
+                        principalTable: "PokeStats",
+                        principalColumn: "PokeStatsId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CustomPokemons_Pokemons_PokemonId",
+                        column: x => x.PokemonId,
+                        principalTable: "Pokemons",
+                        principalColumn: "PokemonId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CustomPokemons_UserTeams_UserTeamId",
+                        column: x => x.UserTeamId,
+                        principalTable: "UserTeams",
+                        principalColumn: "UserTeamId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -416,6 +440,11 @@ namespace PokemonTeamBuilder.Migrations
                 name: "IX_CustomPokemons_CustomPokemonNaturePokeNatureId",
                 table: "CustomPokemons",
                 column: "CustomPokemonNaturePokeNatureId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomPokemons_PokemonId",
+                table: "CustomPokemons",
+                column: "PokemonId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CustomPokemons_UserTeamId",
@@ -474,19 +503,9 @@ namespace PokemonTeamBuilder.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_PokeMoves_CustomPokemonId",
-                table: "PokeMoves",
-                column: "CustomPokemonId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_PokeMoves_MoveTypePokeTypeId",
                 table: "PokeMoves",
                 column: "MoveTypePokeTypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PokeNatures_NatureStatsPokeStatsId",
-                table: "PokeNatures",
-                column: "NatureStatsPokeStatsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TypeEffectivenesses_AttackTypeId",
@@ -497,6 +516,16 @@ namespace PokemonTeamBuilder.Migrations
                 name: "IX_TypeEffectivenesses_DefenceTypeId",
                 table: "TypeEffectivenesses",
                 column: "DefenceTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFavourites_PokemonId",
+                table: "UserFavourites",
+                column: "PokemonId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFavourites_UserId",
+                table: "UserFavourites",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserTeams_UserId",
@@ -520,25 +549,16 @@ namespace PokemonTeamBuilder.Migrations
                 name: "TypeEffectivenesses");
 
             migrationBuilder.DropTable(
-                name: "MPokemonToMoves");
-
-            migrationBuilder.DropTable(
-                name: "PokeMethods");
-
-            migrationBuilder.DropTable(
-                name: "PokeMoves");
-
-            migrationBuilder.DropTable(
-                name: "Pokemons");
+                name: "UserFavourites");
 
             migrationBuilder.DropTable(
                 name: "CustomPokemons");
 
             migrationBuilder.DropTable(
-                name: "PokeTypes");
+                name: "MPokemonToMoves");
 
             migrationBuilder.DropTable(
-                name: "HeldItem");
+                name: "HeldItems");
 
             migrationBuilder.DropTable(
                 name: "PokeAbilities");
@@ -550,10 +570,22 @@ namespace PokemonTeamBuilder.Migrations
                 name: "UserTeams");
 
             migrationBuilder.DropTable(
-                name: "PokeStats");
+                name: "PokeMethods");
+
+            migrationBuilder.DropTable(
+                name: "PokeMoves");
+
+            migrationBuilder.DropTable(
+                name: "Pokemons");
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "PokeTypes");
+
+            migrationBuilder.DropTable(
+                name: "PokeStats");
         }
     }
 }

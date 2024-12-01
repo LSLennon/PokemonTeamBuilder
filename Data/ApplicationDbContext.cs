@@ -29,6 +29,7 @@ namespace PokemonTeamBuilder.Data
         public DbSet<MCustomToMoves> MCustomToMoves { get; set; }
         public DbSet<PokeNature> PokeNatures { get; set; }
         public DbSet<UserFavourites> UserFavourites { get; set; }
+        public DbSet<HeldItem> HeldItems { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

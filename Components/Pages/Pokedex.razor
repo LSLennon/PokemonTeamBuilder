@@ -34,15 +34,12 @@
                 <MudCard>
 
                     <MudCardActions>
-                        <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Secondary" OnClick="@(()=> ClickPokemon(pokemon.PokemonName))" />
-                        
-                            <FavouriteButtons 
-                                isLoggedIn="@isLoggedIn" 
-                                ListOfFaves="@ListOfFaves" 
-                                pokemon="@pokemon" 
-                                username="@username" 
-                                AddedFave="AddedFave" 
-                                RemovedFave="RemoveFavourite" />
+                        <MudTooltip Text="View Pokemon">
+                            <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Secondary" OnClick="@(()=> ClickPokemon(pokemon.PokemonName))" />
+                        </MudTooltip>
+                        <FavouriteButtons isLoggedIn="@isLoggedIn"
+                                          pokemon="@pokemon"
+                                          username="@username" />
                     </MudCardActions>
 
                     <MudImage Src="@pokemon.Image"
@@ -85,7 +82,6 @@
 @code {
 
     List<Pokemon> ListOfPokemon = new List<Pokemon>();
-    List<UserFavourites> ListOfFaves = new List<UserFavourites>();
 
     public bool TypeOrName { get; set; }
     private string searchString1 = "";
@@ -111,7 +107,6 @@
         {
             username = authState.User.Identity.Name;
         }
-        ListOfFaves = await UserService.GetUserFavourites(username);
 
         isLoading = true;
         StateHasChanged();
@@ -140,18 +135,6 @@
     private void ClickPokemon(string clickedPokemon)
     {
         NavigationManager.NavigateTo($"/{clickedPokemon}");
-    }
-
-    private void AddedFave(UserFavourites fave)
-    {
-        ListOfFaves.Add(fave);
-        StateHasChanged();
-    }
-
-    private async Task RemoveFavourite(UserFavourites fave)
-    {
-        ListOfFaves.Remove(fave);
-        StateHasChanged();
     }
 
 }
