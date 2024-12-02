@@ -1,110 +1,102 @@
-﻿using PokeApiNet;
-using PokemonTeamBuilder.Components.Classes.PokemonData;
-
-namespace PokemonTeamBuilder.Components.Classes.Decorator
+﻿namespace PokemonTeamBuilder.Components.Classes.Decorator
 {
     public class DecoratorCustomStats : DecoratorPokeStats
     {
         public event Action OnStatChanged;
 
-        public DecoratorCustomStats(AbstractPokeStats baseStats) : base(baseStats)
+        private const int MaxEV = 252;
+        private const int MaxTotalEV = 508;
+        private const int MaxIV = 31;
+
+        private StatType _statType;
+        public StatType StatType
         {
+            get => _statType;
+            set
+            {
+                if (_statType != value)
+                {
+                    _statType = value;
+                    NotifyStatsChanged();
+                }
+            }
         }
 
-        // Override the properties and trigger OnStatChanged when they change
-        private int _hp;
+        private int _hp, _attack, _defence, _spAttack, _spDefence, _speed;
         public override int HP
         {
             get => _hp;
-            set
-            {
-                if (_hp != value)
-                {
-                    _hp = value;
-                    NotifyStatsChanged();
-                }
-            }
+            set => SetStat(ref _hp, value);
         }
-
-        private int _attack;
         public override int Attack
         {
             get => _attack;
-            set
-            {
-                if (_attack != value)
-                {
-                    _attack = value;
-                    NotifyStatsChanged();
-                }
-            }
+            set => SetStat(ref _attack, value);
         }
-
-        private int _defence;
         public override int Defence
         {
             get => _defence;
-            set
-            {
-                if (_defence != value)
-                {
-                    _defence = value;
-                    NotifyStatsChanged();
-                }
-            }
+            set => SetStat(ref _defence, value);
         }
-
-        private int _spAttack;
         public override int SpAttack
         {
             get => _spAttack;
-            set
-            {
-                if (_spAttack != value)
-                {
-                    _spAttack = value;
-                    NotifyStatsChanged();
-                }
-            }
+            set => SetStat(ref _spAttack, value);
         }
-
-        private int _spDefence;
         public override int SpDefence
         {
             get => _spDefence;
-            set
-            {
-                if (_spDefence != value)
-                {
-                    _spDefence = value;
-                    NotifyStatsChanged();
-                }
-            }
+            set => SetStat(ref _spDefence, value);
         }
-
-        private int _speed;
         public override int Speed
         {
             get => _speed;
-            set
+            set => SetStat(ref _speed, value);
+        }
+
+        public int TotalValue => HP + Attack + Defence + SpAttack + SpDefence + Speed;
+
+        private int TotalEV => _hp + _attack + _defence + _spAttack + _spDefence + _speed;
+
+        private void SetStat(ref int stat, int value)
+        {
+            switch (StatType)
             {
-                if (_speed != value)
-                {
-                    _speed = value;
-                    NotifyStatsChanged();
-                }
+                case StatType.EV:
+                    if (value <= MaxEV && TotalEV + value - stat <= MaxTotalEV)
+                    {
+                        stat = value;
+                        NotifyStatsChanged();
+                    }
+                    break;
+                case StatType.IV:
+                    if (value <= MaxIV)
+                    {
+                        stat = value;
+                        NotifyStatsChanged();
+                    }
+                    break;
             }
         }
 
-        // This method will be used to notify listeners that the stats have changed
         private void NotifyStatsChanged() => OnStatChanged?.Invoke();
 
-        // StatTotal can either be delegated to the base class or overridden with custom logic
+        public DecoratorCustomStats(AbstractPokeStats baseStats, StatType statType) : base(baseStats)
+        {
+            _statType = statType;
+        }
+
         public override int StatTotal()
         {
-            return HP + Attack + Defence + SpAttack + SpDefence + Speed;
+            return TotalValue; // Adjusted to show the correct total based on the stats.
         }
     }
 
+
+    public enum StatType
+    {
+        EV,
+        IV
+    }
 
 }

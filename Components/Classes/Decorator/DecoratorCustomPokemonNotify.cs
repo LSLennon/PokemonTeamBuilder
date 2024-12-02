@@ -14,11 +14,19 @@ namespace PokemonTeamBuilder.Components.Classes.Decorator
             get => _CustomPokemonLevel;
             set
             {
-                if (_CustomPokemonLevel != value)
+                if (value < 1)
+                {
+                    _CustomPokemonLevel = 1; 
+                }
+                else if (value > 100)
+                {
+                    _CustomPokemonLevel = 100; 
+                }
+                else
                 {
                     _CustomPokemonLevel = value;
-                    NotifyAtributeChanged();
                 }
+                NotifyAtributeChanged();
             }
         }
 

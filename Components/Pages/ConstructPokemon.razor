@@ -16,10 +16,10 @@
     <MudItem xs="2">
 
         <MudItem>
-            @if (!string.IsNullOrEmpty(Custom?.CustomPokemonNickname))
+            @if (!string.IsNullOrEmpty(CustomPoke?.CustomPokemonNickname))
             {
                 <MudText>
-                    Nickname: @Custom.CustomPokemonNickname
+                    Nickname: @CustomPoke.CustomPokemonNickname
                 </MudText>
             }
             else
@@ -36,9 +36,9 @@
         <MudItem>
             <MudText>
                 Ability:
-                @if (!string.IsNullOrEmpty(Custom.CustomPokemonAbility?.AbilityName))
+                @if (!string.IsNullOrEmpty(CustomPoke.CustomPokemonAbility?.AbilityName))
                 {
-                    @Custom.CustomPokemonAbility.AbilityName
+                    @CustomPoke.CustomPokemonAbility.AbilityName
                 }
             </MudText>
         </MudItem>
@@ -54,9 +54,9 @@
         <MudItem>
             <MudText>
                 Held Item:
-                @if (!string.IsNullOrEmpty(Custom.CustomPokemonHeldItem?.HeldItemName))
+                @if (!string.IsNullOrEmpty(CustomPoke.CustomPokemonHeldItem?.HeldItemName))
                 {
-                    @Custom.CustomPokemonHeldItem.HeldItemName
+                    @CustomPoke.CustomPokemonHeldItem.HeldItemName
                 }
             </MudText>
         </MudItem>
@@ -84,7 +84,7 @@
                     <PaperWrapper>
                         <MudTextField T="string"
                                       Label="Nickname"
-                                      @bind-Value="Custom.CustomPokemonNickname" />
+                                      @bind-Value="CustomPoke.CustomPokemonNickname" />
                     </PaperWrapper>
                 </MudItem>
             </MudItem>
@@ -92,7 +92,7 @@
                 <PaperWrapper>
                     <MudText Typo="Typo.h6">Abilities</MudText>
                     <MudToggleGroup SelectionMode="SelectionMode.SingleSelection"
-                                    @bind-Value="Custom.CustomPokemonAbility"
+                                    @bind-Value="CustomPoke.CustomPokemonAbility"
                                     Color="Color.Tertiary"
                                     CheckMark>
                         @foreach (var ability in pokemon.Abilities)
@@ -113,32 +113,13 @@
                     </MudNumericField>
                 </PaperWrapper>
             </MudItem>
-
-            <MudItem xs="12" sm="5">
-                <PaperWrapper>
-                    <MudSelect Label="Choose Nature"
-                               OpenIcon="@Icons.Material.Filled.ArrowUpward"
-                               @bind-Value="@CustomPoke.CustomPokemonNature">
-                        @foreach (var item in Natures)
-                        {
-                            <MudSelectItem Value="@item">@item.NatureName</MudSelectItem>
-                        }
-                    </MudSelect>
-                </PaperWrapper>
-            </MudItem>
-            <MudItem xs="12" sm="5">
-                <PaperWrapper>
-                    <MudSelect Label="Choose Held Item"
-                               OpenIcon="@Icons.Material.Filled.ArrowUpward"
-                               @bind-Value="@Custom.CustomPokemonHeldItem">
-                        @foreach (var item in Items)
-                        {
-                            <MudSelectItem Value="@item">@item.HeldItemName - @item.Description</MudSelectItem>
-                        }
-                    </MudSelect>
-                </PaperWrapper>
-            </MudItem>
         </PaperWrapper>
+    </MudTabPanel>
+    <MudTabPanel Text="Held Item">
+        <HeldItemTable HeldItemList="@Items" OnHeldItemAdded="OnHeldItemAdded"></HeldItemTable>
+    </MudTabPanel>
+    <MudTabPanel Text="Nature">
+        <NatureTable NatureList="@Natures" OnNatureAdded="OnNatureAdded"></NatureTable>
     </MudTabPanel>
     <MudTabPanel Text="Moves">
         <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
@@ -152,51 +133,60 @@
     </MudTabPanel>
     <MudTabPanel Text="EVs, IVs">
         <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-            <MudTabPanel Text="Evs">
-                <MudNumericField @bind-Value="EVStats.HP"
-                                 Label="HP"
-                                 Variant="Variant.Outlined"
-                                 Max="252"
-                                 Min="0"
-                                 Immediate="true" />
+            <MudTabPanel Text="EVs">
 
-                <MudNumericField @bind-Value="EVStats.Attack"
-                                 Label="Attack"
-                                 Variant="Variant.Outlined"
-                                 Max="252"
-                                 Min="0"
-                                 Immediate="true" />
+                <MudSlider @bind-Value="EVStats.HP" Min="0" Max="252" TickMarks="true" Step="4">
+                    HP EVs: @EVStats.HP.ToString()
+                </MudSlider>
 
-                <MudNumericField @bind-Value="EVStats.Defence"
-                                 Label="Defence"
-                                 Variant="Variant.Outlined"
-                                 Max="252"
-                                 Min="0"
-                                 Immediate="true" />
+                <MudSlider @bind-Value="EVStats.Attack" Min="0" Max="252" TickMarks="true" Step="4">
+                    Attack EVs: @EVStats.Attack.ToString()
+                </MudSlider>
 
-                <MudNumericField @bind-Value="EVStats.SpAttack"
-                                 Label="Sp Attack"
-                                 Variant="Variant.Outlined"
-                                 Max="252"
-                                 Min="0"
-                                 Immediate="true" />
+                <MudSlider @bind-Value="EVStats.Defence" Min="0" Max="252" TickMarks="true" Step="4">
+                    Defence EVs: @EVStats.Defence.ToString()
+                </MudSlider>
 
-                <MudNumericField @bind-Value="EVStats.SpDefence"
-                                 Label="Sp Defence"
-                                 Variant="Variant.Outlined"
-                                 Max="252"
-                                 Min="0"
-                                 Immediate="true" />
+                <MudSlider @bind-Value="EVStats.SpAttack" Min="0" Max="252" TickMarks="true" Step="4">
+                    SpAttack EVs: @EVStats.SpAttack.ToString()
+                </MudSlider>
 
-                <MudNumericField @bind-Value="EVStats.Speed"
-                                 Label="Speed"
-                                 Variant="Variant.Outlined"
-                                 Max="252"
-                                 Min="0"
-                                 Immediate="true" />
+                <MudSlider @bind-Value="EVStats.SpDefence" Min="0" Max="252" TickMarks="true" Step="4">
+                    SpDefence EVs: @EVStats.SpDefence.ToString()
+                </MudSlider>
 
-                <MudText Typo="Typo.subtitle1" Color="Color.Primary">Total: @EVStats.StatTotal / 508</MudText>
+                <MudSlider @bind-Value="EVStats.Speed" Min="0" Max="252" TickMarks="true" Step="4">
+                    Speed EVs: @EVStats.Speed.ToString()
+                </MudSlider>
 
+                <MudText Typo="Typo.subtitle1" Color="Color.Primary">Total: @EVStats.StatTotal() / 508</MudText>
+
+            </MudTabPanel>
+            <MudTabPanel Text="IVs">
+
+                <MudSlider @bind-Value="IVStats.HP" Min="0" Max="31" TickMarks="true" Step="1">
+                    HP IVs: @IVStats.HP.ToString()
+                </MudSlider>
+
+                <MudSlider @bind-Value="IVStats.Attack" Min="0" Max="31" TickMarks="true" Step="1">
+                    Attack IVs: @IVStats.Attack.ToString()
+                </MudSlider>
+
+                <MudSlider @bind-Value="IVStats.Defence" Min="0" Max="31" TickMarks="true" Step="1">
+                    Defence IVs: @IVStats.Defence.ToString()
+                </MudSlider>
+
+                <MudSlider @bind-Value="IVStats.SpAttack" Min="0" Max="31" TickMarks="true" Step="1">
+                    SpAttack IVs: @IVStats.SpAttack.ToString()
+                </MudSlider>
+
+                <MudSlider @bind-Value="IVStats.SpDefence" Min="0" Max="31" TickMarks="true" Step="1">
+                    SpDefence IVs: @IVStats.SpDefence.ToString()
+                </MudSlider>
+
+                <MudSlider @bind-Value="IVStats.Speed" Min="0" Max="31" TickMarks="true" Step="1">
+                    Speed IVs: @IVStats.Speed.ToString()
+                </MudSlider>
 
             </MudTabPanel>
         </MudTabs>
@@ -231,9 +221,6 @@
     public string[] XAxisLabels = { "HP", "Atk", "Def", "SpAtk", "SpDef", "Spe" };
     private int Index = -1;
 
-    //CustomPokemon Features
-    CustomPokemon Custom = new CustomPokemon();
-
     //Moves
     List<MPokemonToMoves> CustomMoves = new List<MPokemonToMoves>();
 
@@ -246,11 +233,10 @@
 
     private void OnMoveAdded(MPokemonToMoves move)
     {
-        Console.WriteLine(move.PokeMove.MoveName);
         if (CustomMoves.Contains(move))
         {
             CustomMoves.Remove(move);
-            Snackbar.Add("Move has been removed.");
+            Snackbar.Add($"{move.PokeMove.MoveName} has been removed.");
         }
         else if (CustomMoves.Count() >= 4)
         {
@@ -259,9 +245,21 @@
         else
         {
             CustomMoves.Add(move);
-            Snackbar.Add("Move has been added.");
+            Snackbar.Add($"{move.PokeMove.MoveName} has been added.");
         }
         StateHasChanged();
+    }
+
+    private void OnHeldItemAdded(HeldItem item)
+    {
+        CustomPoke.CustomPokemonHeldItem = item;
+        Snackbar.Add($"{item.HeldItemName} has been set.");
+    }
+
+    private void OnNatureAdded(PokeNature nature)
+    {
+        CustomPoke.CustomPokemonNature = nature;
+        Snackbar.Add($"{nature.NatureName} has been set.");
     }
 
     protected override async Task OnInitializedAsync()
@@ -270,43 +268,40 @@
 
         if (pokemon != null)
         {
-            await LoadLists();
+            LoadMoves();
+            await LoadCustomPokemon();
             await LoggedIn();
             IsLoaded = true;
             StateHasChanged();
         }
     }
 
-    public async Task LoadLists()
+    public async Task LoadCustomPokemon()
     {
-        CustomPoke = new DecoratorCustomPokemonNotify(Custom);
+        CustomPoke = new DecoratorCustomPokemonNotify(new CustomPokemon());
         Natures = await PokeService.GetNatureList();
-        CustomPoke.CustomPokemonNature = Natures.First();
-        CustomPoke.OnAtributeChanged += RefreshChart;
-
-        LoadMoves();
-        Custom.CustomPokemonEVs = new PokeStats();
-        EVStats = new DecoratorCustomStats(Custom.CustomPokemonEVs);
-        EVStats.OnStatChanged += RefreshChart;
-
-        Custom.CustomPokemonIVs = new PokeStats();
-        IVStats = new DecoratorCustomStats(Custom.CustomPokemonIVs);
-        IVStats.OnStatChanged += RefreshChart;
-
-
-        Natures = await PokeService.GetNatureList();
-        Custom.CustomPokemonNature = Natures.First();
-
         Items = await PokeService.GetHeldItemList();
 
-        
+        CustomPoke.CustomPokemonNature = Natures.First();
+        if (CustomPoke.CustomPokemonLevel <= 0)
+        {
+            CustomPoke.CustomPokemonLevel = 50;
+        }
+        CustomPoke.OnAtributeChanged += RefreshChart;
+
+        CustomPoke.CustomPokemonEVs = new PokeStats();
+        EVStats = new DecoratorCustomStats(CustomPoke.CustomPokemonEVs, StatType.EV);
+        EVStats.OnStatChanged += RefreshChart;
+
+        CustomPoke.CustomPokemonIVs = new PokeStats();
+        IVStats = new DecoratorCustomStats(CustomPoke.CustomPokemonIVs, StatType.IV);
+        IVStats.OnStatChanged += RefreshChart;
+
         RefreshChart();
     }
 
-
     private void RefreshChart()
     {
-        Console.WriteLine("here");
         StatTotal.Clear();
 
         DecoratorCalculateStats calculateStats = new DecoratorCalculateStats(pokemon.BaseStats, EVStats, IVStats, CustomPoke.CustomPokemonLevel, CustomPoke.CustomPokemonNature);

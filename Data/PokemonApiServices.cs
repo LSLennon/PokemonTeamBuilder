@@ -348,9 +348,9 @@ namespace PokemonTeamBuilder.Data
                             pokeNature.Attack = 0.9;
                         }
                     }
-                    if (natureOne.IncreasedStat.Name == "defence" || natureOne.DecreasedStat.Name == "defence")
+                    if (natureOne.IncreasedStat.Name == "defense" || natureOne.DecreasedStat.Name == "defense")
                     {
-                        if (natureOne.IncreasedStat.Name == "defence")
+                        if (natureOne.IncreasedStat.Name == "defense")
                         {
                             pokeNature.Defence = 1.1;
                         }
@@ -370,9 +370,9 @@ namespace PokemonTeamBuilder.Data
                             pokeNature.SpAttack = 0.9;
                         }
                     }
-                    if (natureOne.IncreasedStat.Name == "apecial-defence" || natureOne.DecreasedStat.Name == "special-defence")
+                    if (natureOne.IncreasedStat.Name == "special-defense" || natureOne.DecreasedStat.Name == "special-defense")
                     {
-                        if (natureOne.IncreasedStat.Name == "special-defence")
+                        if (natureOne.IncreasedStat.Name == "special-defense")
                         {
                             pokeNature.SpDefence = 1.1;
                         }
@@ -394,7 +394,6 @@ namespace PokemonTeamBuilder.Data
                     }
                 }
                 await _context.PokeNatures.AddAsync(pokeNature);
-                Console.WriteLine($"{pokeNature.NatureName} has been added");
                 await _context.SaveChangesAsync();
 
             }

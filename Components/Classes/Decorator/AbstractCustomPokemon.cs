@@ -20,9 +20,9 @@ namespace PokemonTeamBuilder.Components.Classes.Decorator
         public UserTeam UserTeam { get; set; }
 
         public int CustomPokemonEVsId { get; set; }
-        public PokeStats CustomPokemonEVs { get; set; }
+        public virtual PokeStats CustomPokemonEVs { get; set; }
 
         public int CustomPokemonIVsId { get; set; }
-        public PokeStats CustomPokemonIVs { get; set; }
+        public virtual PokeStats CustomPokemonIVs { get; set; }
     }
 }
