@@ -1,0 +1,40 @@
+﻿@inject UserService UserService
+
+<MudForm @ref="form" 
+    @bind-IsValid="@success">
+    <MudTextField T="string"
+                  Label="Username"
+                  @bind-Value="UserTeamName"
+                  Required="true"
+                  RequiredError="Name is required!" />
+    <div class="d-flex align-center justify-space-between">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Disabled="@(!success)"
+                   Class="ml-auto"
+                   OnClick="AddNewTeam">
+            Add New Team
+        </MudButton>
+    </div>
+</MudForm>
+
+@code {
+    [Parameter]
+    public string username { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> AddingTeam { get; set; }
+
+    public string UserTeamName;
+    bool success;
+    MudForm form;
+
+    private async Task AddNewTeam()
+    {
+        bool success = await UserService.AddUserTeam(UserTeamName, username);
+        if (success)
+        {
+            await AddingTeam.InvokeAsync(false);
+        }
+    }
+}

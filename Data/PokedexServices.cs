@@ -41,6 +41,7 @@ namespace PokemonTeamBuilder.Data
                 .ThenInclude(pt => pt.PokeType)
                 .Include(p => p.Moves)
                 .ThenInclude(m => m.PokeMove)
+                .ThenInclude(m => m.MoveType) //This line was needed to stop the refresh crash, Movetypes were not being loaded
                 .Include(p => p.Moves)
                 .ThenInclude(m => m.PokeMethod)
                 .Include(p => p.BaseStats)

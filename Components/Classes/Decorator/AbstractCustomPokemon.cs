@@ -11,13 +11,14 @@ namespace PokemonTeamBuilder.Components.Classes.Decorator
         public virtual int CustomPokemonLevel { get; set; }
         public virtual ICollection<MCustomToMoves> CustomPokemonMoves { get; set; }
         public virtual PokeAbility CustomPokemonAbility { get; set; }
-        public HeldItem CustomPokemonHeldItem { get; set; }
+        public HeldItem? CustomPokemonHeldItem { get; set; }
         public virtual PokeNature CustomPokemonNature { get; set; } = new PokeNature();
 
         public int PokemonId { get; set; }
         public PokemonData.Pokemon Pokemon { get; set; }
-        public int UserTeamId { get; set; }
-        public UserTeam UserTeam { get; set; }
+        public ICollection<MCustomToTeams>? CustomToTeams { get; set; }
+        public int? UserBoxId { get; set; }
+        public UserBox? UserBox { get; set; }
 
         public int CustomPokemonEVsId { get; set; }
         public virtual PokeStats CustomPokemonEVs { get; set; }

@@ -15,6 +15,7 @@
                     <MudTooltip Text="View Pokemon">
                         <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Secondary" OnClick="@(()=> ClickPokemon(pokemon.PokemonName))" />
                     </MudTooltip>
+
                     <FavouriteButtons isLoggedIn="@isLoggedIn"
                                       pokemon="@pokemon"
                                       username="@username" />
@@ -171,7 +172,7 @@
                         @foreach(var MoveList in AllMoveLists)
                         {
                             <MudTabPanel Text="@MoveList.Key">
-                                <MoveTable IsCustom="false" MoveList="@MoveList.Value" TableType="@MoveList.Key"></MoveTable>
+                                <MoveTable IsCustom="false" MoveList="@MoveList.Value" TableType="@MoveList.Key" IsLoaded="@IsLoaded"></MoveTable>
                             </MudTabPanel>
                         }
                     </MudTabs>
@@ -215,8 +216,7 @@
 
         if (pokemon != null)
         {
-            await LoadLists();
-            await LoggedIn();
+            await Task.WhenAll(LoadLists(), LoggedIn());
             IsLoaded = true;
             StateHasChanged();
         }
@@ -226,6 +226,9 @@
     {
         foreach (var move in pokemon.Moves)
         {
+
+            Console.WriteLine(move.PokeMove.MoveType);
+            Console.WriteLine(move.PokeMove.MoveType.PokeTypeName);
             if (move.PokeMethod.Name == "level-up")
             {
                 AllMoveLists["Level-Up Moves"].Add(move);

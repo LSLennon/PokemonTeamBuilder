@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor;
+using PokemonTeamBuilder.Components.Classes.DTOs;
 using PokemonTeamBuilder.Components.Classes.ManyToMany.FavouriteUser;
 using PokemonTeamBuilder.Components.Classes.PokemonData;
 using PokemonTeamBuilder.Components.Classes.UsersData;
@@ -139,7 +141,8 @@ namespace PokemonTeamBuilder.Data
 
         public async Task<List<UserFavourites>> GetUserFavourites(string username)
         {
-            return await _context.UserFavourites
+            var user = await GetUserByUsernameAsync(username);
+            return await _context.UserFavourites.Where(u => u.User == user)
                 .ToListAsync();
         }
 
@@ -178,7 +181,94 @@ namespace PokemonTeamBuilder.Data
             return null;
         }
 
+        public async Task<bool> AddUserBox(string userBox, string username)
+        {
+            var user = await GetUserByUsernameAsync(username);
+            if (user != null)
+            {
+                UserBox box = new UserBox
+                {
+                    UserBoxName = userBox,
+                    User = user,
+                    UserId = user.UserId
+                };
+                user.UserBox.Add(box);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
 
+        public async Task<bool> AddUserTeam(string userTeam, string username)
+        {
+            var user = await GetUserByUsernameAsync(username);
+            if (user != null)
+            {
+                UserTeam team = new UserTeam
+                {
+                    UserTeamName = userTeam,
+                    User = user,
+                    UserId = user.UserId
+                };
+                user.UserTeams.Add(team);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+
+
+        public async Task<List<UserBoxDTO>> GetListBoxes(string username)
+        {
+            var user = await GetUserByUsernameAsync(username);
+            if (user != null)
+            {
+                var result = await _context.UserBox
+                    .Where(u => u.User == user)
+                    .Include(u => u.CustomPokemons)
+                        .ThenInclude(cp => cp.Pokemon)
+                            .ThenInclude(p => p.PokemonTypes)
+                    .Select(u => new UserBoxDTO
+                    {
+                        UserBoxId = u.UserBoxId,
+                        UserBoxName = u.UserBoxName,
+                        CustomPokemons = u.CustomPokemons.Select(cp => new CustomPokemonDTO
+                        {
+                            CustomPokemonNickname = cp.CustomPokemonNickname,
+                            CustomPokemonId = cp.CustomPokemonId,
+                            PokemonId = cp.Pokemon.PokemonId,
+                            PokemonName = cp.Pokemon.PokemonName,
+                            Image = cp.Pokemon.Image,
+                            PokemonTypes = cp.Pokemon.PokemonTypes.Select(pt => pt.PokeType).ToList()
+                        }).ToList()
+                    })
+                    .ToListAsync();
+
+                return result; 
+            }
+            return null;
+
+
+        }
+
+        public async Task<List<UserTeam>> GetListTeams(string username)
+        {
+            var user = await GetUserByUsernameAsync(username);
+            if (user != null)
+            {
+                return await _context.UserTeams
+                    .Where(u => u.User == user)
+                .ToListAsync();
+            }
+            return null;
+
+        }
+
+        public async Task AddCustomPokemonToBox(CustomPokemon pokemon)
+        {
+            _context.CustomPokemons.Add(pokemon);
+            await _context.SaveChangesAsync();
+        }
     }
 
 }

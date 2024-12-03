@@ -6,192 +6,210 @@
 @using System.ComponentModel;
 
 @page "/ConstructPokemon/{OnePokemon}"
-<PaperWrapper>
-    <MudItem xs="3">
-        <MudImage Src="@pokemon.Image"
-                  Alt="@pokemon.PokemonName"
-                  Fluid="true"
-                  Class="pokemon-image" />
-    </MudItem>
-    <MudItem xs="2">
+@if (IsLoaded)
+{
+    <PaperWrapper>
+        <MudItem xs="3">
+            <MudImage Src="@pokemon.Image"
+                      Alt="@pokemon.PokemonName"
+                      Fluid="true"
+                      Class="pokemon-image" />
+        </MudItem>
+        <MudItem xs="2">
 
-        <MudItem>
-            @if (!string.IsNullOrEmpty(CustomPoke?.CustomPokemonNickname))
-            {
+            <MudItem>
+                @if (!string.IsNullOrEmpty(CustomPoke?.CustomPokemonNickname))
+                {
+                    <MudText>
+                        Nickname: @CustomPoke.CustomPokemonNickname
+                    </MudText>
+                }
+                else
+                {
+                    <MudText>
+                        Name: @pokemon.PokemonName
+                    </MudText>
+                }
+
+            </MudItem>
+            <MudItem>
+                <MudText>Level: @CustomPoke.CustomPokemonLevel</MudText>
+            </MudItem>
+            <MudItem>
                 <MudText>
-                    Nickname: @CustomPoke.CustomPokemonNickname
+                    Ability:
+                    @if (!string.IsNullOrEmpty(CustomPoke.CustomPokemonAbility?.AbilityName))
+                    {
+                        @CustomPoke.CustomPokemonAbility.AbilityName
+                    }
                 </MudText>
-            }
-            else
-            {
+            </MudItem>
+            <MudItem>
                 <MudText>
-                    Name: @pokemon.PokemonName
+                    Nature:
+                    @if (!string.IsNullOrEmpty(CustomPoke.CustomPokemonNature?.NatureName))
+                    {
+                        @CustomPoke.CustomPokemonNature.NatureName
+                    }
                 </MudText>
+            </MudItem>
+            <MudItem>
+                <MudText>
+                    Held Item:
+                    @if (!string.IsNullOrEmpty(CustomPoke.CustomPokemonHeldItem?.HeldItemName))
+                    {
+                        @CustomPoke.CustomPokemonHeldItem.HeldItemName
+                    }
+                </MudText>
+            </MudItem>
+        </MudItem>
+        <MudItem xs="3" Class="">
+            @foreach (var move in CustomMoves)
+            {
+                <MoveTemplate Move="move" />
             }
-
         </MudItem>
-        <MudItem>
-            <MudText>Level: @CustomPoke.CustomPokemonLevel</MudText>
+        <MudItem xs="3">
+            <MudCard>
+                <MudCardContent>
+                    <MudChart ChartType="ChartType.StackedBar" ChartSeries="@StatTotal" @bind-SelectedIndex="Index" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+                </MudCardContent>
+            </MudCard>
         </MudItem>
-        <MudItem>
-            <MudText>
-                Ability:
-                @if (!string.IsNullOrEmpty(CustomPoke.CustomPokemonAbility?.AbilityName))
-                {
-                    @CustomPoke.CustomPokemonAbility.AbilityName
-                }
-            </MudText>
-        </MudItem>
-        <MudItem>
-            <MudText>
-                Nature:
-                @if (!string.IsNullOrEmpty(CustomPoke.CustomPokemonNature?.NatureName))
-                {
-                    @CustomPoke.CustomPokemonNature.NatureName
-                }
-            </MudText>
-        </MudItem>
-        <MudItem>
-            <MudText>
-                Held Item:
-                @if (!string.IsNullOrEmpty(CustomPoke.CustomPokemonHeldItem?.HeldItemName))
-                {
-                    @CustomPoke.CustomPokemonHeldItem.HeldItemName
-                }
-            </MudText>
-        </MudItem>
-    </MudItem>
-    <MudItem xs="3" Class="">
-        @foreach (var move in CustomMoves)
-        {
-            <MoveTemplate Move="move" />
-        }
-    </MudItem>
-    <MudItem xs="3">
-        <MudCard>
-            <MudCardContent>
-                <MudChart ChartType="ChartType.StackedBar" ChartSeries="@StatTotal" @bind-SelectedIndex="Index" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
-            </MudCardContent>
-        </MudCard>
-    </MudItem>
-</PaperWrapper>
-
-<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-    <MudTabPanel Text="Basic Info">
-        <PaperWrapper>
-            <MudItem xs="12" sm="3">
-                <MudItem xs="12">
+    </PaperWrapper>
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               Class="ml-auto"
+               OnClick="AddCustomPokemon">
+        Add Custom Pokemon
+    </MudButton>
+    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+        <MudTabPanel Text="Basic Info">
+            <PaperWrapper>
+                <MudItem xs="12" sm="3">
+                    <MudItem xs="12">
+                        <PaperWrapper>
+                            <MudTextField T="string"
+                                          Label="Nickname"
+                                          @bind-Value="CustomPoke.CustomPokemonNickname" />
+                        </PaperWrapper>
+                    </MudItem>
+                </MudItem>
+                <MudItem xs="12" sm="4">
                     <PaperWrapper>
-                        <MudTextField T="string"
-                                      Label="Nickname"
-                                      @bind-Value="CustomPoke.CustomPokemonNickname" />
+                        <MudText Typo="Typo.h6">Abilities</MudText>
+                        <MudToggleGroup SelectionMode="SelectionMode.SingleSelection"
+                                        @bind-Value="CustomPoke.CustomPokemonAbility"
+                                        Color="Color.Tertiary"
+                                        CheckMark>
+                            @foreach (var ability in pokemon.Abilities)
+                            {
+                                <MudTooltip Text="@ability.PokeAbility.AbilityDescription">
+                                    <MudToggleItem Value="ability.PokeAbility" Text="@ability.PokeAbility.AbilityName" />
+                                </MudTooltip>
+                            }
+                        </MudToggleGroup>
                     </PaperWrapper>
                 </MudItem>
-            </MudItem>
-            <MudItem xs="12" sm="4">
-                <PaperWrapper>
-                    <MudText Typo="Typo.h6">Abilities</MudText>
-                    <MudToggleGroup SelectionMode="SelectionMode.SingleSelection"
-                                    @bind-Value="CustomPoke.CustomPokemonAbility"
-                                    Color="Color.Tertiary"
-                                    CheckMark>
-                        @foreach (var ability in pokemon.Abilities)
-                        {
-                            <MudTooltip Text="@ability.PokeAbility.AbilityDescription">
-                                <MudToggleItem Value="ability.PokeAbility" Text="@ability.PokeAbility.AbilityName" />
-                            </MudTooltip>
-                        }
-                    </MudToggleGroup>
-                </PaperWrapper>
-            </MudItem>
-            <MudItem xs="12" sm="3">
-                <PaperWrapper>
-                    <MudNumericField Label="Level"
-                                     @bind-Value="CustomPoke.CustomPokemonLevel"
-                                     Min="1"
-                                     Max="100">
-                    </MudNumericField>
-                </PaperWrapper>
-            </MudItem>
-        </PaperWrapper>
-    </MudTabPanel>
-    <MudTabPanel Text="Held Item">
-        <HeldItemTable HeldItemList="@Items" OnHeldItemAdded="OnHeldItemAdded"></HeldItemTable>
-    </MudTabPanel>
-    <MudTabPanel Text="Nature">
-        <NatureTable NatureList="@Natures" OnNatureAdded="OnNatureAdded"></NatureTable>
-    </MudTabPanel>
-    <MudTabPanel Text="Moves">
-        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-            @foreach (var MoveList in AllMoveLists)
-            {
-                <MudTabPanel Text="@MoveList.Key">
-                    <MoveTable IsCustom="true" MoveList="@MoveList.Value" TableType="@MoveList.Key" OnMoveAdded="OnMoveAdded"></MoveTable>
+                <MudItem xs="12" sm="3">
+                    <PaperWrapper>
+                        <MudNumericField Label="Level"
+                                         @bind-Value="CustomPoke.CustomPokemonLevel"
+                                         Min="1"
+                                         Max="100">
+                        </MudNumericField>
+                    </PaperWrapper>
+                </MudItem>
+                <MudItem xs="12" sm="3">
+                    <PaperWrapper>
+                        <MudSelect @bind-Value="CustomPoke.UserBox" Label="Select box" OpenIcon="@Icons.Material.Filled.AddBox" AdornmentColor="Color.Secondary" Required>
+                            @foreach (var item in UserBoxes)
+                            {
+                                <MudSelectItem Value="@item">@item.UserBoxName</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </PaperWrapper>
+                </MudItem>
+            </PaperWrapper>
+        </MudTabPanel>
+        <MudTabPanel Text="Held Item">
+            <HeldItemTable HeldItemList="@Items" OnHeldItemAdded="OnHeldItemAdded"></HeldItemTable>
+        </MudTabPanel>
+        <MudTabPanel Text="Nature">
+            <NatureTable NatureList="@Natures" OnNatureAdded="OnNatureAdded"></NatureTable>
+        </MudTabPanel>
+        <MudTabPanel Text="Moves">
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                @foreach (var MoveList in AllMoveLists)
+                {
+                    <MudTabPanel Text="@MoveList.Key">
+                        <MoveTable IsCustom="true" MoveList="@MoveList.Value" TableType="@MoveList.Key" OnMoveAdded="OnMoveAdded" IsLoaded="@IsLoaded"></MoveTable>
+                    </MudTabPanel>
+                }
+            </MudTabs>
+        </MudTabPanel>
+        <MudTabPanel Text="EVs, IVs">
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                <MudTabPanel Text="EVs">
+
+                    <MudSlider @bind-Value="EVStats.HP" Min="0" Max="252" TickMarks="true" Step="4">
+                        HP EVs: @EVStats.HP.ToString()
+                    </MudSlider>
+
+                    <MudSlider @bind-Value="EVStats.Attack" Min="0" Max="252" TickMarks="true" Step="4">
+                        Attack EVs: @EVStats.Attack.ToString()
+                    </MudSlider>
+
+                    <MudSlider @bind-Value="EVStats.Defence" Min="0" Max="252" TickMarks="true" Step="4">
+                        Defence EVs: @EVStats.Defence.ToString()
+                    </MudSlider>
+
+                    <MudSlider @bind-Value="EVStats.SpAttack" Min="0" Max="252" TickMarks="true" Step="4">
+                        SpAttack EVs: @EVStats.SpAttack.ToString()
+                    </MudSlider>
+
+                    <MudSlider @bind-Value="EVStats.SpDefence" Min="0" Max="252" TickMarks="true" Step="4">
+                        SpDefence EVs: @EVStats.SpDefence.ToString()
+                    </MudSlider>
+
+                    <MudSlider @bind-Value="EVStats.Speed" Min="0" Max="252" TickMarks="true" Step="4">
+                        Speed EVs: @EVStats.Speed.ToString()
+                    </MudSlider>
+
+                    <MudText Typo="Typo.subtitle1" Color="Color.Primary">Total: @EVStats.StatTotal() / 508</MudText>
+
                 </MudTabPanel>
-            }
-        </MudTabs>
-    </MudTabPanel>
-    <MudTabPanel Text="EVs, IVs">
-        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-            <MudTabPanel Text="EVs">
+                <MudTabPanel Text="IVs">
 
-                <MudSlider @bind-Value="EVStats.HP" Min="0" Max="252" TickMarks="true" Step="4">
-                    HP EVs: @EVStats.HP.ToString()
-                </MudSlider>
+                    <MudSlider @bind-Value="IVStats.HP" Min="0" Max="31" TickMarks="true" Step="1">
+                        HP IVs: @IVStats.HP.ToString()
+                    </MudSlider>
 
-                <MudSlider @bind-Value="EVStats.Attack" Min="0" Max="252" TickMarks="true" Step="4">
-                    Attack EVs: @EVStats.Attack.ToString()
-                </MudSlider>
+                    <MudSlider @bind-Value="IVStats.Attack" Min="0" Max="31" TickMarks="true" Step="1">
+                        Attack IVs: @IVStats.Attack.ToString()
+                    </MudSlider>
 
-                <MudSlider @bind-Value="EVStats.Defence" Min="0" Max="252" TickMarks="true" Step="4">
-                    Defence EVs: @EVStats.Defence.ToString()
-                </MudSlider>
+                    <MudSlider @bind-Value="IVStats.Defence" Min="0" Max="31" TickMarks="true" Step="1">
+                        Defence IVs: @IVStats.Defence.ToString()
+                    </MudSlider>
 
-                <MudSlider @bind-Value="EVStats.SpAttack" Min="0" Max="252" TickMarks="true" Step="4">
-                    SpAttack EVs: @EVStats.SpAttack.ToString()
-                </MudSlider>
+                    <MudSlider @bind-Value="IVStats.SpAttack" Min="0" Max="31" TickMarks="true" Step="1">
+                        SpAttack IVs: @IVStats.SpAttack.ToString()
+                    </MudSlider>
 
-                <MudSlider @bind-Value="EVStats.SpDefence" Min="0" Max="252" TickMarks="true" Step="4">
-                    SpDefence EVs: @EVStats.SpDefence.ToString()
-                </MudSlider>
+                    <MudSlider @bind-Value="IVStats.SpDefence" Min="0" Max="31" TickMarks="true" Step="1">
+                        SpDefence IVs: @IVStats.SpDefence.ToString()
+                    </MudSlider>
 
-                <MudSlider @bind-Value="EVStats.Speed" Min="0" Max="252" TickMarks="true" Step="4">
-                    Speed EVs: @EVStats.Speed.ToString()
-                </MudSlider>
+                    <MudSlider @bind-Value="IVStats.Speed" Min="0" Max="31" TickMarks="true" Step="1">
+                        Speed IVs: @IVStats.Speed.ToString()
+                    </MudSlider>
 
-                <MudText Typo="Typo.subtitle1" Color="Color.Primary">Total: @EVStats.StatTotal() / 508</MudText>
-
-            </MudTabPanel>
-            <MudTabPanel Text="IVs">
-
-                <MudSlider @bind-Value="IVStats.HP" Min="0" Max="31" TickMarks="true" Step="1">
-                    HP IVs: @IVStats.HP.ToString()
-                </MudSlider>
-
-                <MudSlider @bind-Value="IVStats.Attack" Min="0" Max="31" TickMarks="true" Step="1">
-                    Attack IVs: @IVStats.Attack.ToString()
-                </MudSlider>
-
-                <MudSlider @bind-Value="IVStats.Defence" Min="0" Max="31" TickMarks="true" Step="1">
-                    Defence IVs: @IVStats.Defence.ToString()
-                </MudSlider>
-
-                <MudSlider @bind-Value="IVStats.SpAttack" Min="0" Max="31" TickMarks="true" Step="1">
-                    SpAttack IVs: @IVStats.SpAttack.ToString()
-                </MudSlider>
-
-                <MudSlider @bind-Value="IVStats.SpDefence" Min="0" Max="31" TickMarks="true" Step="1">
-                    SpDefence IVs: @IVStats.SpDefence.ToString()
-                </MudSlider>
-
-                <MudSlider @bind-Value="IVStats.Speed" Min="0" Max="31" TickMarks="true" Step="1">
-                    Speed IVs: @IVStats.Speed.ToString()
-                </MudSlider>
-
-            </MudTabPanel>
-        </MudTabs>
-    </MudTabPanel>
-</MudTabs>
+                </MudTabPanel>
+            </MudTabs>
+        </MudTabPanel>
+    </MudTabs>
+}
 @code {
     //Passed in pokmeon to load indivdual data
     [Parameter]
@@ -334,6 +352,8 @@
         }
     }
 
+    public List<UserBox> UserBoxes = new List<UserBox>();
+
     public async Task LoggedIn()
     {
         var authState = await AuthService.GetAuthenticationStateAsync();
@@ -341,6 +361,76 @@
         if (isLoggedIn)
         {
             username = authState.User.Identity.Name;
+            UserBoxes = await UserService.GetListBoxes(username);
         }
+    }
+
+    private async Task AddCustomPokemon()
+    {
+        CustomPokemon AddPoke = new CustomPokemon();
+        AddPoke.PokemonId = pokemon.PokemonId;
+        AddPoke.CustomPokemonLevel = CustomPoke.CustomPokemonLevel;
+        AddPoke.CustomPokemonNature = CustomPoke.CustomPokemonNature;
+
+        List<MCustomToMoves> MoveList = new List<MCustomToMoves>();
+        foreach (var move in CustomMoves)
+        {
+            MCustomToMoves mCustom = new MCustomToMoves
+                {
+                    MPokemonToMoves = move,
+                };
+            MoveList.Add(mCustom);
+        }
+        AddPoke.CustomPokemonMoves = MoveList;
+        PokeStats IVs = new PokeStats
+            {
+                HP = IVStats.HP,
+                Attack = IVStats.Attack,
+                Defence = IVStats.Defence,
+                SpAttack = IVStats.SpAttack,
+                SpDefence = IVStats.SpDefence,
+                Speed = IVStats.Speed,
+            };
+        AddPoke.CustomPokemonIVs = IVs;
+        PokeStats EVs = new PokeStats
+            {
+                HP = EVStats.HP,
+                Attack = EVStats.Attack,
+                Defence = EVStats.Defence,
+                SpAttack = EVStats.SpAttack,
+                SpDefence = EVStats.SpDefence,
+                Speed = EVStats.Speed,
+            };
+        AddPoke.CustomPokemonEVs = EVs;
+
+        if (CustomPoke.CustomPokemonHeldItem != null)
+        {
+            AddPoke.CustomPokemonHeldItem = CustomPoke.CustomPokemonHeldItem;
+        }
+        if (CustomPoke.CustomPokemonNickname != null)
+        {
+            AddPoke.CustomPokemonNickname = CustomPoke.CustomPokemonNickname;
+        }
+
+        if (CustomPoke.CustomPokemonAbility == null)
+        {
+            AddPoke.CustomPokemonAbility = pokemon.Abilities.First().PokeAbility;
+        }
+        else
+        {
+            AddPoke.CustomPokemonAbility = CustomPoke.CustomPokemonAbility;
+        }
+        if (CustomPoke.UserBox == null)
+        {
+            AddPoke.UserBox = UserBoxes.First();
+        }
+        else
+        {
+            AddPoke.UserBox = CustomPoke.UserBox;
+        }
+
+        await UserService.AddCustomPokemonToBox(AddPoke);
+        NavigationManager.NavigateTo($"/UserProfile");
+
     }
 }

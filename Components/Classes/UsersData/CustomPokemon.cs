@@ -7,6 +7,6 @@ namespace PokemonTeamBuilder.Components.Classes.UsersData
 {
     public class CustomPokemon : AbstractCustomPokemon
     {
-        
+
     }
 }

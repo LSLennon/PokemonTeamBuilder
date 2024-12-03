@@ -2,7 +2,7 @@
 @inject PokedexServices PokePokedex
 @inject PokemonAuthenticationService AuthService
 @inject UserService UserService
-@page "/Pokedex"
+
 
 <MudPaper Class="p-4">
     <MudText Typo="Typo.h2" Class="ma-4">Pokedex</MudText>
@@ -30,37 +30,9 @@
     <MudGrid>
         @foreach (var pokemon in FilteredPokemon)
         {
-            <MudItem xs="6" sm="4" md="3" lg="2">
-                <MudCard>
-
-                    <MudCardActions>
-                        <MudTooltip Text="View Pokemon">
-                            <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Secondary" OnClick="@(()=> ClickPokemon(pokemon.PokemonName))" />
-                        </MudTooltip>
-                        <FavouriteButtons isLoggedIn="@isLoggedIn"
-                                          pokemon="@pokemon"
-                                          username="@username" />
-                    </MudCardActions>
-
-                    <MudImage Src="@pokemon.Image"
-                              Alt="@pokemon.PokemonName"
-                              Fluid="true" />
-
-                    <MudCardContent>
-                        <MudText Typo="Typo.h6">@pokemon.PokemonName.CapitalizeName()</MudText>
-                        <MudText Typo="Typo.body2"> Dex No: @pokemon.PokemonId </MudText>
-                        <MudStack Direction="Row" Spacing="1">
-                            @foreach (var type in pokemon.PokemonTypes)
-                            {
-                                <TypeDisplay Text="@type.PokeType.PokeTypeName" />
-                            }
-                        </MudStack>
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
+            <ViewPokedexPokemon username="@username" isLoggedIn="isLoggedIn" pokemon="@pokemon"></ViewPokedexPokemon>
         }
     </MudGrid>
-
 
 
     <MudDivider Class="my-4" />
@@ -79,9 +51,25 @@
 
 
 
-@code {
 
-    List<Pokemon> ListOfPokemon = new List<Pokemon>();
+
+@code {
+    [Parameter]
+    public string username { get; set; }
+
+    [Parameter]
+    public bool isLoggedIn { get; set; }
+
+    [Parameter]
+    public bool PokedexOrUser { get; set; }
+
+    [Parameter]
+    public List<Pokemon>? ListOfPokemon { get; set; } = new List<Pokemon>();
+
+
+    bool success;
+    MudForm form;
+
 
     public bool TypeOrName { get; set; }
     private string searchString1 = "";
@@ -92,25 +80,6 @@
     private int TotalPages => (int)Math.Ceiling(UnpaginatedFilteredPokemon.Count() / (double)pageSize);
 
     private int CurrentPage { get; set; } = 1;
-
-    public bool isLoading = false;
-    private bool isLoggedIn;
-    private string username;
-
-    protected override async Task OnInitializedAsync()
-    {
-        ListOfPokemon = await PokePokedex.GetPokedexList();
-
-        var authState = await AuthService.GetAuthenticationStateAsync();
-        isLoggedIn = authState.User.Identity?.IsAuthenticated ?? false;
-        if (isLoggedIn)
-        {
-            username = authState.User.Identity.Name;
-        }
-
-        isLoading = true;
-        StateHasChanged();
-    }
 
     private IEnumerable<Pokemon> UnpaginatedFilteredPokemon =>
     ListOfPokemon
@@ -131,10 +100,6 @@
             CurrentPage = TotalPages;
         }
     }
-
-    private void ClickPokemon(string clickedPokemon)
-    {
-        NavigationManager.NavigateTo($"/{clickedPokemon}");
-    }
-
 }
+
+
