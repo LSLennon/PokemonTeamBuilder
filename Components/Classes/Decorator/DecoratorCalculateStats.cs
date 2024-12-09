@@ -3,6 +3,7 @@ using System.Reflection.Emit;
 
 namespace PokemonTeamBuilder.Components.Classes.Decorator
 {
+    //this is used to add various methods to the PokeStats class to make calcuating final stats easier as PokeStats really covers five differnt types of stats that are all revelvent to a custom pokemon. using this avoids having to create indivdual classes, or database tables for each without including them when unccessary to the user
     public class DecoratorCalculateStats : DecoratorPokeStats
     {
         private AbstractPokeStats _EVs;  

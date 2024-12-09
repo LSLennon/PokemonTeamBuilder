@@ -58,6 +58,7 @@
 
         private int TotalEV => _hp + _attack + _defence + _spAttack + _spDefence + _speed;
 
+        //used to make sure Evs stay within their requiered range on the Custom Pokemon screen. also adds event listener so chart can be updated
         private void SetStat(ref int stat, int value)
         {
             switch (StatType)
@@ -88,7 +89,7 @@
 
         public override int StatTotal()
         {
-            return TotalValue; // Adjusted to show the correct total based on the stats.
+            return TotalValue; // Adjusted to show the correct total based on the stats
         }
     }
 

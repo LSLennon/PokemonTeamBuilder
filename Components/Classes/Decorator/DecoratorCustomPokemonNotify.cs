@@ -6,9 +6,11 @@ namespace PokemonTeamBuilder.Components.Classes.Decorator
 {
     public class DecoratorCustomPokemonNotify : DecoratorCustomPokemon
     {
+        //thsi decorator adds notificatiosn to certain atributes so the chart can be updated in real time
         public DecoratorCustomPokemonNotify(AbstractCustomPokemon customPoke) : base(customPoke) { }
 
         private int _CustomPokemonLevel;
+        //makes sure the users level is in the requiered range
         public override int CustomPokemonLevel
         {
             get => _CustomPokemonLevel;
