@@ -1,5 +1,6 @@
 ﻿namespace PokemonTeamBuilder.Components.Classes.UsersData
 {
+    // A place for users to store pokemon they made and sort them, unfinished implimentation
     public class UserBox
     {
         public int UserBoxId { get; set; }

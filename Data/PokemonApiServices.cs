@@ -24,12 +24,6 @@ namespace PokemonTeamBuilder.Data
         }
 
         PokeApiClient pokeClient = new PokeApiClient();
-
-        public int moveCount = 0;
-        public int typeCount = 0;
-        public int abilityCount = 0;
-        public int methodCount = 0;
-
         public async Task<List<PokeType>> GetTypeList()
         {
             return await _context.PokeTypes.ToListAsync();
@@ -93,8 +87,6 @@ namespace PokemonTeamBuilder.Data
                 };
                 pokemon.Abilities.Add(link);
             }
-            Console.WriteLine($"Id: {pokemon.PokemonId} - Name: {pokemon.PokemonName}");
-            Console.WriteLine($"Type Count: {typeCount}     Move Count: {moveCount}     Method Count: {methodCount}     Ability Count: {abilityCount}");
             _context.Pokemons.Add(pokemon);
             await _context.SaveChangesAsync();
         }
@@ -108,7 +100,7 @@ namespace PokemonTeamBuilder.Data
 
         public async Task<string> GetImage(int pokemonId)
         {
-            string paddedId = pokemonId.ToString("D3"); // "D3" formats the number to 3 digits
+            string paddedId = pokemonId.ToString("D3"); // "D3" formats the number to 3 digits which is needed to match teh url. this one was used sue to better quality images
 
             string url = $"https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/{paddedId}.png";
 
@@ -130,7 +122,6 @@ namespace PokemonTeamBuilder.Data
                     PokeTypeName = item,
                 };
                 _context.PokeTypes.Add(pokeType);
-                typeCount += 1;
                 await _context.SaveChangesAsync();
                 return pokeType;
             }
@@ -166,7 +157,6 @@ namespace PokemonTeamBuilder.Data
                     move.MachineName = apiMachine.FirstOrDefault(mn => mn.VersionGroup.Name == versionGroup.Name).Item.Name;
                 }
                 _context.PokeMoves.Add(move);
-                moveCount += 1;
                 await _context.SaveChangesAsync();
                 return move;
             }
@@ -190,7 +180,6 @@ namespace PokemonTeamBuilder.Data
                         .LastOrDefault()?.Description ?? "N/A",
                 };
                 _context.PokeMethods.Add(pokeMethod);
-                methodCount += 1;
                 await _context.SaveChangesAsync();
                 return pokeMethod;
             }
@@ -216,7 +205,6 @@ namespace PokemonTeamBuilder.Data
                             .LastOrDefault()?.FlavorText ?? "N/A",
                 };
                 _context.PokeAbilities.Add(pokeAbility);
-                abilityCount += 1;
                 await _context.SaveChangesAsync();
                 return pokeAbility;
             }
@@ -263,6 +251,7 @@ namespace PokemonTeamBuilder.Data
             return returnPokeStats;
         }
 
+        //effectivness was not stored in the form i wanted form the api, this turns their data into somthing more usable for the site
         public async Task GetEffectivenessForDatabase(List<PokeType> pokeTypes)
         {
             foreach (var pokeType in pokeTypes)
@@ -323,6 +312,7 @@ namespace PokemonTeamBuilder.Data
             }
         }
 
+        //I wanted natures to use doubel values to make stat calculatiosn easier 
         public async Task GetNatures()
         {
             var AllNatures = await pokeClient.GetNamedResourcePageAsync<Nature>(25, 0);
@@ -401,6 +391,7 @@ namespace PokemonTeamBuilder.Data
 
         public async Task GetHeldItems()
         {
+            //the numbers represent items that be held that are relevent for a pokemon team as compared to ever item a pokemon could hold
             int[] itemCategoryIds = new int[]
         {
             3, 4, 5, 6, 7, //Berries
@@ -421,6 +412,6 @@ namespace PokemonTeamBuilder.Data
                     await _context.SaveChangesAsync();
                 }
             }
-        } //Not Usable due to bug in API
+        } //Not Usable due to bug in API. It made nothing have a name. Data was added through manipulating CSV files and adding directly
     }
 }

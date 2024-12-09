@@ -3,6 +3,7 @@ using PokemonTeamBuilder.Components.Classes.UsersData;
 
 namespace PokemonTeamBuilder.Components.Classes.ManyToMany.FavouriteUser
 {
+    // Many to Many connection between User and Pokemon to facilitate favouriting
     public class UserFavourites
     {
         public int UserFavouritesId { get; set; }

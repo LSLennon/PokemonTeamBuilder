@@ -2,6 +2,7 @@
 
 namespace PokemonTeamBuilder.Components.Classes.ManyToMany.PokemonCustom
 {
+    // Many to Many connection between CustomPokemon and UserTeam so Users Can build Teams
     public class MCustomToTeams
     {
         public int MCustomToTeamsId { get; set; }

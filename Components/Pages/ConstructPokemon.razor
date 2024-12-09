@@ -235,13 +235,14 @@
     public DecoratorCustomStats IVStats;
     public DecoratorCustomPokemonNotify CustomPoke;
 
-
+    //Sets the descriptions for the chart
     public string[] XAxisLabels = { "HP", "Atk", "Def", "SpAtk", "SpDef", "Spe" };
     private int Index = -1;
 
     //Moves
     List<MPokemonToMoves> CustomMoves = new List<MPokemonToMoves>();
 
+    // Adds all moves so it is easier to generate them all above using foreach loops
     Dictionary<string, List<MPokemonToMoves>> AllMoveLists = new Dictionary<string, List<MPokemonToMoves>>
     {
         {"Level-Up Moves", new List<MPokemonToMoves>()},
@@ -249,6 +250,7 @@
         {"Egg Moves", new List<MPokemonToMoves>()}
     };
 
+    // Adds or removes pokemon for Custom Moves and notifies the user
     private void OnMoveAdded(MPokemonToMoves move)
     {
         if (CustomMoves.Contains(move))
@@ -294,6 +296,7 @@
         }
     }
 
+    // Makes sure custom pokemon and all other requiered information is loaded
     public async Task LoadCustomPokemon()
     {
         CustomPoke = new DecoratorCustomPokemonNotify(new CustomPokemon());
@@ -318,6 +321,7 @@
         RefreshChart();
     }
 
+    //refreshed teh chart display whenever a relevent value is changed
     private void RefreshChart()
     {
         StatTotal.Clear();
@@ -333,6 +337,7 @@
 
     }
 
+    // gets and sorts all teh base pokemons moves
     public void LoadMoves()
     {
         foreach (var move in pokemon.Moves)
@@ -361,10 +366,10 @@
         if (isLoggedIn)
         {
             username = authState.User.Identity.Name;
-            UserBoxes = await UserService.GetListBoxes(username);
         }
     }
 
+    //saves a custom pokemon to teh database and impliments default values for fields that are requiered. for those that arent they are left blank
     private async Task AddCustomPokemon()
     {
         CustomPokemon AddPoke = new CustomPokemon();

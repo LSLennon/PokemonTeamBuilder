@@ -1,5 +1,6 @@
 ﻿namespace PokemonTeamBuilder.Components.Classes.UsersData
 {
+    // A place for users to store teams of pokemon they made, unfinished implimentation
     public class UserTeam
     {
         public int UserTeamId { get; set; }

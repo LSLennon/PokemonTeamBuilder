@@ -50,6 +50,7 @@ namespace PokemonTeamBuilder.Data
 
         }
 
+        //used to build the type chart on the viewpokemon page, takes in a pokemons types and makes sure to only return types that have a match and do not equal 1 at the end
         public async Task<TypeChart> GetTypeInfo(List<MPokemonToTypes> pokeTypes)
         {
             TypeChart typeChart = new TypeChart();

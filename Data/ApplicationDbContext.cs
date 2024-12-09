@@ -42,6 +42,7 @@ namespace PokemonTeamBuilder.Data
             optionsBuilder.UseSqlite("Data Source=Data/PokemonDB.db", o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
         }
 
+        //these are needed when entity framework has didficulty with building the database
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Pokemon>()

@@ -2,6 +2,7 @@
 
 namespace PokemonTeamBuilder.Components.Classes.ManyToMany.BasePokemon
 {
+    // Many to Many connection between Pokemon and PokeAbility
     public class MPokemonToAbilities
     {
         public int MPokemonToAbilitiesId { get; set; }
