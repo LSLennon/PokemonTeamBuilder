@@ -1,12 +1,8 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Hosting.StaticWebAssets;
+using InclamentEmeraldTeamBuilder.Components;
+using InclementEmeraldTeamBuilder.Data;
+using InclementEmeraldTeamBuilder.DatabaseBuilder;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
-using PokemonTeamBuilder.Components;
-using PokemonTeamBuilder.Components.Classes;
-using PokemonTeamBuilder.Data;
-using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,29 +16,15 @@ builder.Services.AddRazorComponents()
 var connectionString = builder.Configuration.GetConnectionString("PokemonDB");
 builder.Services.AddServerSideBlazor();
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContext<PokeDbContext>(options =>
         options.UseSqlite("Data Source=Data/PokemonDB.db"));
 
-builder.Services.AddScoped<PokemonAuthenticationService>();
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<PokemonApiServices>();
-builder.Services.AddScoped<PokedexServices>();
-builder.Services.AddScoped<AuthenticationStateProvider, PokemonAuthenticationService>();
-builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<BuildDatabase>();
 
-builder.Services.AddAuthentication("PokemonCookieAuthentication")
-    .AddCookie("PokemonCookieAuthentication", options =>
-    {
-        options.LoginPath = "/Components/Pages/Users/LogInUser";
-        options.LogoutPath = "/Components/Pages/Users/LogOutUser";
-    });
 
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
