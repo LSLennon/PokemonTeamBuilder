@@ -1,0 +1,271 @@
+﻿@inject PokedexServices PokeService
+@inject PokemonAuthenticationService AuthService
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+@page "/{OnePokemon}"
+
+@if (IsLoaded)
+{
+    <MudGrid Class="justify-space-around align-start">
+        <MudItem xs="12" sm="6" md="4" lg="4">
+            <PaperWrapper>
+                <MudCardActions>
+                    <MudTooltip Text="View Pokemon">
+                        <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Secondary" OnClick="@(()=> ClickPokemon(pokemon.PokemonName))" />
+                    </MudTooltip>
+
+                    <FavouriteButtons isLoggedIn="@isLoggedIn"
+                                      pokemon="@pokemon"
+                                      username="@username" />
+                </MudCardActions>
+                <MudImage Src="@pokemon.Image"
+                          Alt="@pokemon.PokemonName"
+                          Fluid="true"
+                          Class="pokemon-image" />
+            </PaperWrapper>
+        </MudItem> <!--Image Block-->
+
+        <MudItem xs="12" sm="6" md="4" lg="4">
+
+            <MudItem xs="12">
+                <PaperWrapper>
+                    <MudText Typo="Typo.h6">Dex No: @pokemon.PokemonId</MudText>
+                    <MudText Typo="Typo.h6">@pokemon.PokemonName.CapitalizeName()</MudText>
+                </PaperWrapper>
+            </MudItem><!--Id and Name-->
+
+            <MudItem xs="12">
+                <PaperWrapper>
+                    <MudItem>
+                        <MudText Typo="Typo.h6">Height</MudText>
+                        <MudText Typo="Typo.h6">@($"{pokemon.Height / 10.0} M")</MudText>
+                    </MudItem>
+                    <MudItem>
+                        <MudText Typo="Typo.h6">Weight</MudText>
+                        <MudText Typo="Typo.h6">@($"{pokemon.Weight / 10.0} Kg")</MudText>
+                    </MudItem>
+                </PaperWrapper>
+            </MudItem> <!--Height and Wight-->
+
+            <MudItem xs="12">
+                <PaperWrapper>
+                    <MudText Typo="Typo.h6">Types</MudText>
+                    <MudFlexBreak />
+                    @foreach (var type in pokemon.PokemonTypes)
+                    {
+                        <TypeDisplay Text="@type.PokeType.PokeTypeName" />
+                    }
+                </PaperWrapper>
+            </MudItem> <!--Types-->
+
+            <MudItem xs="12">
+                <PaperWrapper>
+                    <MudText Typo="Typo.h6">Abilities</MudText>
+                    <MudFlexBreak />
+                    @foreach (var ability in pokemon.Abilities)
+                    {
+                        <MudTooltip Text="@ability.PokeAbility.AbilityDescription">
+                            <MudButton Variant="Variant.Filled" Size="Size.Small" Class="ability">
+                                @ability.PokeAbility.AbilityName
+                            </MudButton>
+                        </MudTooltip>
+                    }
+                </PaperWrapper>
+            </MudItem> <!--Abilities-->
+
+            <MudItem xs="12">
+                <PaperWrapper>
+                    <MudText Typo="Typo.h6">@pokemon.PokedexEntry</MudText>
+                </PaperWrapper>
+            </MudItem> <!--Pokedex Entry-->
+        </MudItem> <!--Details Block-->
+
+        <MudItem xs="12" sm="6" md="4" lg="4">
+            <MudCard>
+                <MudCardContent>
+                    <MudChart ChartType="ChartType.StackedBar" ChartSeries="@Series" @bind-SelectedIndex="Index" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+                </MudCardContent>
+            </MudCard>
+        </MudItem> <!--Stat Block-->
+        
+        <MudItem xs="12">
+            <MudPaper Class="d-flex flex-wrap justify-space-around align-start">
+                <TypeItemWrapper>
+                    <MudText Typo="Typo.h6">x4 Weakness</MudText>
+                    @if (typeChart.X4Weakness.Any())
+                    {
+                        @foreach (var dmg in typeChart.X4Weakness)
+                        {
+                            <TypeDisplay Text="@dmg" />
+                        }
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2">None</MudText>
+                    }
+                </TypeItemWrapper>
+                <TypeItemWrapper>
+                    <MudText Typo="Typo.h6">x2 Weakness</MudText>
+                    @if (typeChart.x2Weakness.Any())
+                    {
+                        @foreach (var dmg in typeChart.x2Weakness)
+                        {
+                            <TypeDisplay Text="@dmg" />
+                        }
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2">None</MudText>
+                    }
+                </TypeItemWrapper>
+                <TypeItemWrapper>
+                    <MudText Typo="Typo.h6">No Damage</MudText>
+                    @if (typeChart.NoDamage.Any())
+                    {
+                        @foreach (var dmg in typeChart.NoDamage)
+                        {
+                            <TypeDisplay Text="@dmg" />
+                        }
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2">None</MudText>
+                    }
+                </TypeItemWrapper>
+                <TypeItemWrapper>
+                    <MudText Typo="Typo.h6">2x Resistance</MudText>
+                    @if (typeChart.X2Resist.Any())
+                    {
+                        @foreach (var dmg in typeChart.X2Resist)
+                        {
+                            <TypeDisplay Text="@dmg" />
+                        }
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2">None</MudText>
+                    }
+                </TypeItemWrapper>
+                <TypeItemWrapper>
+                    <MudText Typo="Typo.h6">4x Resistance</MudText>
+                    @if (typeChart.X4Resist.Any())
+                    {
+                        @foreach (var dmg in typeChart.X4Resist)
+                        {
+                            <TypeDisplay Text="@dmg" />
+                        }
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2">None</MudText>
+                    }
+                </TypeItemWrapper>
+            </MudPaper>
+        </MudItem> <!--Type Chart-->
+
+        <MudItem xs="12">
+            <MudCard>
+                <MudCardContent>
+                    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                        @foreach(var MoveList in AllMoveLists)
+                        {
+                            <MudTabPanel Text="@MoveList.Key">
+                                <MoveTable IsCustom="false" MoveList="@MoveList.Value" TableType="@MoveList.Key" IsLoaded="@IsLoaded"></MoveTable>
+                            </MudTabPanel>
+                        }
+                    </MudTabs>
+                </MudCardContent>
+            </MudCard>
+        </MudItem> <!--LevelUp Moves-->
+    </MudGrid>
+}
+@code {
+    //displays all information relevent to one pokemon
+    private void ClickPokemon(string clickedPokemon)
+    {
+        NavigationManager.NavigateTo($"/ConstructPokemon/{clickedPokemon}");
+    }
+    //Passed in pokmeon to load indivdual data
+    [Parameter]
+    public string OnePokemon { get; set; }
+
+    //classes for display
+    Pokemon pokemon = new Pokemon();
+    TypeChart typeChart = new TypeChart();
+    Dictionary<string, List<MPokemonToMoves>> AllMoveLists = new Dictionary<string, List<MPokemonToMoves>>
+    {
+        {"Level-Up Moves", new List<MPokemonToMoves>()},
+        {"Machine Moves", new List<MPokemonToMoves>()},
+        {"Egg Moves", new List<MPokemonToMoves>()}
+    };
+
+    //Loading and User Data
+    private bool IsLoaded = false;
+    private bool isLoggedIn;
+    private string username;
+
+    //Stat Display
+    public List<ChartSeries> Series = new List<ChartSeries>();
+    public string[] XAxisLabels = { "HP", "Atk", "Def", "SpAtk", "SpDef", "Spe" };
+    private int Index = -1;
+    protected override async Task OnInitializedAsync()
+    {
+        pokemon = await PokeService.GetPokemonByName(OnePokemon);
+
+        if (pokemon != null)
+        {
+            await Task.WhenAll(LoadLists(), LoggedIn());
+            IsLoaded = true;
+            StateHasChanged();
+        }
+    }
+
+    public async Task LoadLists()
+    {
+        foreach (var move in pokemon.Moves)
+        {
+
+            Console.WriteLine(move.PokeMove.MoveType);
+            Console.WriteLine(move.PokeMove.MoveType.PokeTypeName);
+            if (move.PokeMethod.Name == "level-up")
+            {
+                AllMoveLists["Level-Up Moves"].Add(move);
+            }
+            else if (move.PokeMethod.Name == "machine")
+            {
+                AllMoveLists["Machine Moves"].Add(move);
+            }
+            else if (move.PokeMethod.Name == "egg")
+            {
+                AllMoveLists["Egg Moves"].Add(move);
+            }
+        }
+        typeChart = await PokeService.GetTypeInfo(pokemon.PokemonTypes.ToList());
+        ChartSeries series = new ChartSeries
+            {
+                Name = "Base Stats",
+                Data = new double[]
+                                                                                                        {
+                        pokemon.BaseStats.HP,
+                        pokemon.BaseStats.Attack,
+                        pokemon.BaseStats.Defence,
+                        pokemon.BaseStats.SpAttack,
+                        pokemon.BaseStats.SpDefence,
+                        pokemon.BaseStats.Speed
+                                                                                                        }
+            };
+        Series.Add(series);
+    }
+
+    public async Task LoggedIn()
+    {
+        var authState = await AuthService.GetAuthenticationStateAsync();
+        isLoggedIn = authState.User.Identity?.IsAuthenticated ?? false;
+        if (isLoggedIn)
+        {
+            username = authState.User.Identity.Name;
+        }
+    }
+}

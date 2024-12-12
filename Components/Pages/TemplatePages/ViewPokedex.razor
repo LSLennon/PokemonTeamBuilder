@@ -1,0 +1,106 @@
+﻿@inject NavigationManager NavigationManager
+@inject PokedexServices PokePokedex
+@inject PokemonAuthenticationService AuthService
+@inject UserService UserService
+
+
+<MudPaper Class="p-4">
+    <MudText Typo="Typo.h2" Class="ma-4">Pokedex</MudText>
+    <MudDivider Class="ma-2" />
+    <MudTextField @bind-Value="searchString1"
+                  Placeholder="Search"
+                  Adornment="Adornment.Start"
+                  AdornmentIcon="@Icons.Material.Filled.Search"
+                  IconSize="Size.Medium"
+                  Class="mb-4 ml-4"
+                  Style="max-width: 20%;" />
+
+    <MudToggleIconButton @bind-Toggled="TypeOrName"
+                         Size="Size.Large"
+                         Icon="@Icons.Material.Filled.ToggleOff"
+                         Color="@Color.Error"
+                         ToggledIcon="@Icons.Material.Filled.ToggleOn"
+                         ToggledColor="@Color.Success"
+                         title="@(TypeOrName ? "Type" : "Name")" />
+    <span class="ml-2">Searching for @(TypeOrName ? "Type" : "Name")</span>
+
+
+    <MudDivider Class="my-4" />
+
+    <MudGrid>
+        @foreach (var pokemon in FilteredPokemon)
+        {
+            <ViewPokedexPokemon username="@username" isLoggedIn="isLoggedIn" pokemon="@pokemon"></ViewPokedexPokemon>
+        }
+    </MudGrid>
+
+
+    <MudDivider Class="my-4" />
+
+    <MudSelect @bind-Value="pageSize" Label="Page Size" Class="mb-4 ml-4" Style="max-width: 10%;">
+        @foreach (var size in PageSizes)
+        {
+            <MudSelectItem Value="@size">@size</MudSelectItem>
+        }
+    </MudSelect>
+
+    <MudPagination Color="Color.Primary" Count="@TotalPages" @bind-Selected="CurrentPage" Class="mb-4 ml-2" />
+
+</MudPaper>
+
+
+
+
+
+
+@code {
+    // Displays a list of pokemon in spoecific displays, includes two different search modes and paging to reduce loading
+    [Parameter]
+    public string username { get; set; }
+
+    [Parameter]
+    public bool isLoggedIn { get; set; }
+
+    [Parameter]
+    public bool PokedexOrUser { get; set; }
+
+    [Parameter]
+    public List<Pokemon>? ListOfPokemon { get; set; } = new List<Pokemon>();
+
+
+    bool success;
+    MudForm form;
+
+
+    public bool TypeOrName { get; set; }
+    private string searchString1 = "";
+
+    private static readonly int[] PageSizes = { 12, 24, 36, 48 };
+    private int pageSize { get; set; } = PageSizes[0];
+
+    private int TotalPages => (int)Math.Ceiling(UnpaginatedFilteredPokemon.Count() / (double)pageSize);
+
+    private int CurrentPage { get; set; } = 1;
+
+    private IEnumerable<Pokemon> UnpaginatedFilteredPokemon =>
+    ListOfPokemon
+    .Where(pokemon => string.IsNullOrWhiteSpace(searchString1) ||
+    (TypeOrName ? pokemon.PokemonTypes.Any(type => type.PokeType.PokeTypeName.Contains(searchString1, StringComparison.OrdinalIgnoreCase)) :
+    pokemon.PokemonName.Contains(searchString1, StringComparison.OrdinalIgnoreCase)));
+
+    private IEnumerable<Pokemon> FilteredPokemon =>
+    UnpaginatedFilteredPokemon
+    .Skip((CurrentPage - 1) * pageSize)
+    .Take(pageSize);
+
+    private void OnPageChanged(int newPage)
+    {
+        CurrentPage = newPage;
+        if (CurrentPage > TotalPages)
+        {
+            CurrentPage = TotalPages;
+        }
+    }
+}
+
+

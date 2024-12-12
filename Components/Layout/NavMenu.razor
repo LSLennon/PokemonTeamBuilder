@@ -1,6 +1,8 @@
-﻿
+﻿@inject UserService serviceUsers
+@inject PokemonAuthenticationService PokeService
+
 <MudNavMenu>
     <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
-</MudNavMenu>
-
+        <MudNavLink Href="UserProfile" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">User Profile</MudNavLink>
+    </MudNavMenu>
 

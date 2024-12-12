@@ -1,0 +1,41 @@
+﻿@inject UserService UserService
+
+<MudForm @ref="form" 
+    @bind-IsValid="@success">
+    <MudTextField T="string"
+                  Label="Box Name"
+                  @bind-Value="UserBoxName"
+                  Required="true"
+                  RequiredError="Name is required!" />
+    <div class="d-flex align-center justify-space-between">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Disabled="@(!success)"
+                   Class="ml-auto"
+                   OnClick="AddNewBox">
+            Add New Box
+        </MudButton>
+    </div>
+</MudForm>
+
+@code {
+    //Allows a user to add a new box to store pokemon
+    [Parameter]
+    public string username { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> AddingBox { get; set; }
+
+    public string UserBoxName;
+    bool success;
+    MudForm form;
+
+    private async Task AddNewBox()
+    {
+        bool success = await UserService.AddUserBox(UserBoxName, username);
+        if (success)
+        {
+            await AddingBox.InvokeAsync(false);
+        }
+    }
+}

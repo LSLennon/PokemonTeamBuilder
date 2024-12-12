@@ -1,0 +1,104 @@
+﻿@page "/UserProfile"
+@inject NavigationManager NavigationManager
+@inject PokemonAuthenticationService PokeService
+@inject UserService UserService
+<PokemonPageWrapper>
+
+    @if (AddingBoxes)
+    {
+        <AddBox username="@userName" AddingBox="@AddNewBox"></AddBox>
+    }
+    else if (AddingTeams)
+    {
+        <AddTeam username="@userName" AddingTeam="@AddNewTeam"></AddTeam>
+    }
+    else
+    {
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Class="ml-auto"
+                   OnClick="AddNewBox">
+            Add New Box
+        </MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Class="ml-auto"
+                   OnClick="AddNewTeam">
+            Add New Team
+        </MudButton>
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+            <MudTabPanel Text="Boxes">
+                <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                    @foreach (var box in UsersBoxes)
+                    {
+                        <MudTabPanel Text=@box.UserBoxName>
+                        </MudTabPanel>
+                    }
+                </MudTabs>
+            </MudTabPanel>
+            <MudTabPanel Text="Teams">
+                <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                    @foreach (var team in UsersTeams)
+                    {
+                        <MudTabPanel Text=@team.UserTeamName>
+
+                        </MudTabPanel>
+                    }
+                </MudTabs>
+            </MudTabPanel>
+        </MudTabs>
+    }
+
+
+
+
+
+</PokemonPageWrapper>
+@code {
+    public string userName;
+
+    public bool AddingBoxes = false;
+    public bool AddingTeams = false;
+
+    public async Task AddNewBox()
+    {
+        if (AddingBoxes)
+        {
+            AddingBoxes = false;
+        }
+        else
+        {
+            AddingBoxes = true;
+        }
+
+    }
+
+    public async Task AddNewTeam()
+    {
+        if (AddingTeams)
+        {
+            AddingTeams = false;
+        }
+        else
+        {
+            AddingTeams = true;
+        }
+    }
+
+    public List<UserBoxDTO> UsersBoxes = new List<UserBoxDTO>();
+    public List<UserTeam> UsersTeams = new List<UserTeam>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("test");
+        var authState = await PokeService.GetAuthenticationStateAsync();
+        userName = authState.User.Identity?.Name;
+        if (userName != null)
+        {
+            UsersBoxes = await UserService.GetListBoxes(userName);
+            UsersTeams = await UserService.GetListTeams(userName);
+        }
+
+    }
+
+}
